@@ -421,8 +421,10 @@ GameObject:
   - component: {fileID: 230361910}
   - component: {fileID: 230361912}
   - component: {fileID: 230361913}
+  - component: {fileID: 230361915}
+  - component: {fileID: 230361914}
   m_Layer: 0
-  m_Name: PlacementController
+  m_Name: GameManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -489,6 +491,38 @@ MonoBehaviour:
   - {fileID: 11400000, guid: a278fe336e1b80342a4c575d444d9110, type: 2}
   - {fileID: 11400000, guid: 1096df161ab19024587f2e24fe74f171, type: 2}
   - {fileID: 11400000, guid: 340e8e91424bf844abf00b0ae0fffbe8, type: 2}
+--- !u!114 &230361914
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 230361909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1d8acb298e96d145ad5d04e4154a599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Domain.Turns.TurnCoordinator
+  currentState: 0
+  currentTurnNumber: 1
+  uiPresenter: {fileID: 261737241}
+  placementController: {fileID: 230361910}
+  settleDetector: {fileID: 230361915}
+--- !u!114 &230361915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 230361909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7967bf5e60d64c348be958d15711a3a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Application.UseCases.PhysicsSettleDetector
+  velocityThreshold: 0.05
+  settleDuration: 1.5
+  isWaitingForSettle: 0
 --- !u!1 &261737240
 GameObject:
   m_ObjectHideFlags: 0
@@ -792,7 +826,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: -4, z: 0}
-  m_LocalScale: {x: 18, y: 4, z: 1}
+  m_LocalScale: {x: 18, y: 4, z: 10}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
