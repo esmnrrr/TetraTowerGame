@@ -21,7 +21,7 @@ namespace Game.Presentation.Input
         private GameObject ghostPiece; // Farenin ucunda gezen yarı saydam kopya
         private Camera mainCamera;
         private Plane placementPlane; // Işınların çarpacağı matematiksel düzlem
-
+        public event System.Action OnPieceDropped; // Parça bırakıldığında TurnCoordinator'a haber vermek için
         private void Start()
         {
             mainCamera = Camera.main;
@@ -151,6 +151,9 @@ namespace Game.Presentation.Input
                 {
                     Debug.Log("---> 4. ADIM: Gerçek obje başarıyla üretildi!");
                 }
+
+                // Orkestra şefine haber ver
+                OnPieceDropped?.Invoke();
 
                 // Elimizdeki tanımı boşaltalım ki tekrar hayalet üretmesin
                 currentPieceDef = null; 

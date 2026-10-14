@@ -104,6 +104,13 @@ namespace Game.Presentation.UI
             {
                 Debug.LogError("HUDPresenter: PiecePlacementController atanmamış!");
             }
+
+            // Orkestra şefine (TurnCoordinator) durumun değiştiğini bildir
+            TurnCoordinator coordinator = UnityEngine.Object.FindAnyObjectByType<TurnCoordinator>();
+            if (coordinator != null)
+            {
+                coordinator.OnPieceSelectedFromUI();
+            }
         }
     }
 }
