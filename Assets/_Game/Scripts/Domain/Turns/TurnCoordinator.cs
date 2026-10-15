@@ -27,6 +27,8 @@ namespace Game.Domain.Turns
         public HUDPresenter uiPresenter;
         public PiecePlacementController placementController;
         public PhysicsSettleDetector settleDetector;
+
+        public CollapseEvaluator collapseEvaluator;
         
         // TODO: İleride CollapseEvaluator (Kule çöktü mü kontrolü) buraya eklenecek
 
@@ -115,10 +117,22 @@ namespace Game.Domain.Turns
                 currentState = TurnState.Evaluating;
                 Debug.Log("Durum: Kule durdu. Çöküş kontrolü yapılıyor...");
 
-                // TODO: A3 Aşamasının devamında burada CollapseEvaluator ile kule çöktü mü diye bakacağız.
-                // Şimdilik kule hiç çökmüyor varsayıp bir sonraki tura geçiyoruz!
-
-                StartCoroutine(EndTurnRoutine());
+                // ÇÖKÜŞ KONTROLÜ BURADA YAPILIYOR!
+                if (collapseEvaluator != null && collapseEvaluator.HasTowerCollapsed)
+                {
+                    currentState = TurnState.GameOver;
+                    Debug.Log("OYUN BİTTİ! Kule yıkıldı.");
+                    
+                    if (uiPresenter != null) 
+                    {
+                        uiPresenter.ShowGameOver(currentTurnNumber - 1); // Son tamamlanan turu gönder
+                    }
+                }
+                else
+                {
+                    // Kule sağlamsa bir sonraki tura geç
+                    StartCoroutine(EndTurnRoutine());
+                }
             }
         }
 

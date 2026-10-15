@@ -121,6 +121,12 @@ namespace Game.Presentation.Input
             // Hem sol tık (Mouse 0) hem de BOŞLUK (Space) tuşu ile test edelim
             if (UnityEngine.Input.GetMouseButtonDown(0) || UnityEngine.Input.GetKeyDown(KeyCode.Space))
             {
+                if (!IsPlacementValid())
+                {
+                    Debug.LogWarning("DİKKAT: Parça başka bir objenin içinde! Buraya bırakılamaz.");
+                    return; // Kodu burada durdur, parçayı bırakmasına İZİN VERME!
+                }
+
                 Debug.Log("---> 1. ADIM: Yerleştirme tuşuna basıldı!");
 
                 if (pieceFactory == null)
@@ -158,6 +164,38 @@ namespace Game.Presentation.Input
                 
                 Debug.Log("---> İŞLEM TAMAM: Farenin ucu boşaldı!");
             }
+        }
+
+        private bool IsPlacementValid()
+        {
+            // Hayalet obje üzerindeki tüm BoxCollider'ları bul
+            BoxCollider[] boxes = ghostPiece.GetComponentsInChildren<BoxCollider>();
+            
+            foreach (BoxCollider box in boxes)
+            {
+                // Kutunun dünyadaki merkez noktasını ve yarı boyutunu hesapla
+                Vector3 worldCenter = box.transform.TransformPoint(box.center);
+                Vector3 halfExtents = box.size * 0.5f;
+                
+                // Kutuyu matematiksel olarak %10 küçültüyoruz.
+                // Sebebi: Oyuncu parçayı diğerinin tam yanına (sıfıra sıfır) değdirerek bırakmak isteyebilir.
+                halfExtents *= 0.90f; 
+
+                // O bölgede başka bir katı obje var mı diye görünmez bir kutu fırlat
+                // QueryTriggerInteraction.Ignore: Aşağıdaki devasa KillZone sensörünü görmezden gelmesi için
+                Collider[] overlaps = Physics.OverlapBox(worldCenter, halfExtents, box.transform.rotation, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+                
+                foreach (Collider overlap in overlaps)
+                {
+                    // Eğer çarptığı obje hayalet objenin kendisi değilse, içeride başka bir parça var demektir!
+                    if (overlap.transform.root != ghostPiece.transform.root)
+                    {
+                        return false; // Çakışma var, yerleştirme BAŞARISIZ!
+                    }
+                }
+            }
+            
+            return true; // Etraf temiz, yerleştirme BAŞARILI!
         }
     }
 }
