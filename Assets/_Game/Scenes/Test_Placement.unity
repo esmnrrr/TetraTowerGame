@@ -522,7 +522,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Application.UseCases.PhysicsSettleDetector
   velocityThreshold: 0.05
-  settleDuration: 1.5
+  settleDuration: 0.75
   isWaitingForSettle: 0
 --- !u!1 &261737240
 GameObject:
