@@ -60,23 +60,21 @@ namespace Game.Presentation.Input
 
         private void CreateGhostPiece()
         {
-            // PieceDefinition'dan Prefab'ı alıp sahneye üretiyoruz
             ghostPiece = Instantiate(currentPieceDef.Prefab);
             
-            // "Ghost" olduğu için fizik kurallarından ve çarpışmalardan etkilenmemesi lazım.
-            // Collider ve Rigidbody bileşenlerini kapatıyoruz.
-            Collider coll = ghostPiece.GetComponent<Collider>();
-            if (coll != null) coll.enabled = false;
+            // DİKKAT: Hayalet objenin üzerindeki TÜM Collider'ları kapatıyoruz!
+            Collider[] colliders = ghostPiece.GetComponentsInChildren<Collider>();
+            foreach (Collider coll in colliders)
+            {
+                coll.enabled = false;
+            }
 
             Rigidbody rb = ghostPiece.GetComponent<Rigidbody>();
             if (rb != null)
             {
-                rb.isKinematic = true; // Fizik motoru yönetmesin, biz yöneteceğiz
-                rb.useGravity = false; // Yere düşmesin
+                rb.isKinematic = true; 
+                rb.useGravity = false; 
             }
-
-            // Tasarım Belgesi: Yarı saydam ghost (İleri aşamada buraya saydam bir materyal atanabilir)
-            // Şimdilik sadece Unity'nin varsayılan haliyle hareket edecek.
         }
 
         private void HandleMovement()

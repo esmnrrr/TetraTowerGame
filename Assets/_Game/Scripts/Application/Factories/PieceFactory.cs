@@ -8,11 +8,7 @@ namespace Game.Application.Factories
         // İstediğimiz pozisyonda ve açıda gerçek fiziksel parçayı üretir
         public GameObject CreateRealPiece(PieceDefinition definition, Vector3 position, Quaternion rotation)
         {
-            if (definition == null || definition.Prefab == null)
-            {
-                Debug.LogError("PieceFactory: PieceDefinition veya Prefab eksik!");
-                return null;
-            }
+            if (definition == null || definition.Prefab == null) return null;
 
             // 1. Prefab'ın bir kopyasını sahneye o anki farenin (hayalet objenin) konum ve rotasyonuyla üret
             GameObject realPiece = Instantiate(definition.Prefab, position, rotation);
@@ -34,12 +30,11 @@ namespace Game.Application.Factories
                 }
             }
 
-            Collider coll = realPiece.GetComponent<Collider>();
-            if (coll != null)
+            // 4. Collider'ları etkinleştir ve fizik materyalini uygula
+            Collider[] colliders = realPiece.GetComponentsInChildren<Collider>();
+            foreach (Collider coll in colliders)
             {
-                coll.enabled = true; // Çarpışmalar açık olsun
-
-                // Eğer PieceDefinition'da özel bir sürtünme materyali varsa onu uygula
+                coll.enabled = true;
                 if (definition.PhysicsMaterial != null)
                 {
                     coll.material = definition.PhysicsMaterial;
