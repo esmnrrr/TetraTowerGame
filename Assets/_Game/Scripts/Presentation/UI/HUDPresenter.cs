@@ -1,10 +1,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; // TextMeshPro kullanıyorsan bunu ekle (Eğer klasik Text kullanıyorsan UnityEngine.UI yeterlidir)
-using Game.Domain.Pieces; // Kendi namespace'ine göre güncelle
+using TMPro; // TextMeshPro kullanıyorsan bunu ekle
+using Game.Domain.Pieces;
 using Game.Domain.Turns; // PieceSelectionService'in bulunduğu namespace
 using Game.Presentation.Input; // PiecePlacementController'ın bulunduğu namespace
+using UnityEngine.SceneManagement;
 
 namespace Game.Presentation.UI
 {
@@ -131,6 +132,11 @@ namespace Game.Presentation.UI
                     scoreText.text = $"Tur Skorun: {survivedTurns}";
                 }
             }
+        }
+
+        public void RestartGame()
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
 }

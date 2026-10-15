@@ -22,6 +22,8 @@ namespace Game.Presentation.Input
         private Camera mainCamera;
         private Plane placementPlane; // Işınların çarpacağı matematiksel düzlem
         public event System.Action OnPieceDropped; // Parça bırakıldığında TurnCoordinator'a haber vermek için
+
+        public Material ghostMaterial;
         private void Start()
         {
             mainCamera = Camera.main;
@@ -61,6 +63,12 @@ namespace Game.Presentation.Input
         private void CreateGhostPiece()
         {
             ghostPiece = Instantiate(currentPieceDef.Prefab);
+
+            MeshRenderer[] renderers = ghostPiece.GetComponentsInChildren<MeshRenderer>();
+            foreach (MeshRenderer r in renderers)
+            {
+                if (ghostMaterial != null) r.material = ghostMaterial;
+            }
             
             // DİKKAT: Hayalet objenin üzerindeki TÜM Collider'ları kapatıyoruz!
             Collider[] colliders = ghostPiece.GetComponentsInChildren<Collider>();
