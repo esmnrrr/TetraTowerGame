@@ -30,6 +30,10 @@ namespace Game.Presentation.UI
         [Tooltip("Butonların içindeki parça ikonlarını gösterecek image objeleri")]
         public Image[] pieceIconImages = new Image[3];
 
+        [Header("Game Over UI")]
+        public GameObject gameOverPanel;
+        public TMP_Text scoreText; 
+
         // O an sunulan 3 parçayı hafızada tutmak için
         private List<PieceDefinition> currentOptions;
 
@@ -110,6 +114,22 @@ namespace Game.Presentation.UI
             if (coordinator != null)
             {
                 coordinator.OnPieceSelectedFromUI();
+            }
+        }
+
+        public void ShowGameOver(int survivedTurns)
+        {
+            // Seçim menüsünü tamamen kapat
+            if (selectionPanel != null) selectionPanel.SetActive(false);
+            
+            // Game Over ekranını aç
+            if (gameOverPanel != null)
+            {
+                gameOverPanel.SetActive(true);
+                if (scoreText != null)
+                {
+                    scoreText.text = $"Tur Skorun: {survivedTurns}";
+                }
             }
         }
     }
