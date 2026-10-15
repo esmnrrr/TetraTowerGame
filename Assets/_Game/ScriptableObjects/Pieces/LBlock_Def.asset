@@ -16,5 +16,5 @@ MonoBehaviour:
   DisplayName: L Block
   Prefab: {fileID: 7430850734132428847, guid: cd74686456a18f94387456a9d9adc692, type: 3}
   Mass: 4
-  PhysicsMaterial: {fileID: 0}
+  PhysicsMaterial: {fileID: 13400000, guid: 05da9053f00e6244a899bfc5cf4e769c, type: 2}
   Icon: {fileID: 0}

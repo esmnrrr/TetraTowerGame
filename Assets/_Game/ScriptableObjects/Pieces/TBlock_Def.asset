@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0d3d989fe6166740967c92e87e553e0, type: 3}
+  m_Name: TBlock_Def
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Domain.Pieces.PieceDefinition
+  ID: t_block
+  DisplayName: T Block
+  Prefab: {fileID: 245985387413412794, guid: 02d5822d184411d49ad3d97ca4b9e6fb, type: 3}
+  Mass: 4
+  PhysicsMaterial: {fileID: 13400000, guid: 05da9053f00e6244a899bfc5cf4e769c, type: 2}
+  Icon: {fileID: 0}
