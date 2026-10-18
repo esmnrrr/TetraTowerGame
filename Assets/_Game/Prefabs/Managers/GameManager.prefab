@@ -1,0 +1,118 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &269404461133429961
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4695890613660239293}
+  - component: {fileID: 8139826795347080884}
+  - component: {fileID: 7336443621477161776}
+  - component: {fileID: 5164632876142678955}
+  - component: {fileID: 3331193199227617916}
+  - component: {fileID: 1337955102018929249}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4695890613660239293
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 269404461133429961}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -4, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8139826795347080884
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 269404461133429961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 479c16ca98766654b8c194cf0c63efd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.Input.PiecePlacementController
+  placementDepth: 0
+  rotationSpeed: 90
+  currentPieceDef: {fileID: 0}
+  pieceFactory: {fileID: 7336443621477161776}
+  ghostMaterial: {fileID: 0}
+--- !u!114 &7336443621477161776
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 269404461133429961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0344f3fbdb013eb42821334cd0e23534, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Application.Factories.PieceFactory
+--- !u!114 &5164632876142678955
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 269404461133429961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9c31add8e7feed54aba1b8709cb6ebf0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Domain.Turns.PieceSelectionService
+  availablePieces:
+  - {fileID: 11400000, guid: 7e080f27c88fcc94ca8bd7540997ef33, type: 2}
+  - {fileID: 11400000, guid: 2efd130c44b3a554fa992aecf0fd045b, type: 2}
+  - {fileID: 11400000, guid: a278fe336e1b80342a4c575d444d9110, type: 2}
+  - {fileID: 11400000, guid: 1096df161ab19024587f2e24fe74f171, type: 2}
+  - {fileID: 11400000, guid: 340e8e91424bf844abf00b0ae0fffbe8, type: 2}
+--- !u!114 &3331193199227617916
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 269404461133429961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7967bf5e60d64c348be958d15711a3a4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Application.UseCases.PhysicsSettleDetector
+  velocityThreshold: 0.05
+  settleDuration: 0.75
+  isWaitingForSettle: 0
+--- !u!114 &1337955102018929249
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 269404461133429961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e1d8acb298e96d145ad5d04e4154a599, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Domain.Turns.TurnCoordinator
+  currentState: 0
+  currentTurnNumber: 1
+  uiPresenter: {fileID: 0}
+  placementController: {fileID: 8139826795347080884}
+  settleDetector: {fileID: 3331193199227617916}
+  collapseEvaluator: {fileID: 0}

@@ -87,8 +87,11 @@ namespace Game.Presentation.Input
 
         private void HandleMovement()
         {
+            if (ghostPiece == null) return;
+            
             // 1. Ekrandaki fare pozisyonundan (2D) kameranın baktığı yöne doğru bir ışın (Ray) oluştur
             Ray ray = mainCamera.ScreenPointToRay(UnityEngine.Input.mousePosition);
+            placementPlane = new Plane(Vector3.back, new Vector3(0, 0, placementDepth));
             
             // 2. Bu ışın, Start() metodunda oluşturduğumuz düzlemle kesişiyor mu?
             float distanceToPlane;
@@ -97,6 +100,8 @@ namespace Game.Presentation.Input
                 // 3. Kesiştiyse, ışının başlangıç noktasından düzleme olan mesafe kadar git
                 // ve o tam 3D koordinatı bul.
                 Vector3 targetPosition = ray.GetPoint(distanceToPlane);
+
+                targetPosition.z = placementDepth;
                 
                 // 4. Ghost objeyi o noktaya taşı
                 ghostPiece.transform.position = targetPosition;
@@ -190,9 +195,12 @@ namespace Game.Presentation.Input
                 halfExtents *= 0.90f; 
 
                 // O bölgede başka bir katı obje var mı diye görünmez bir kutu fırlat
-                // QueryTriggerInteraction.Ignore: Aşağıdaki devasa KillZone sensörünü görmezden gelmesi için
-                Collider[] overlaps = Physics.OverlapBox(worldCenter, halfExtents, box.transform.rotation, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
-                
+                // QueryTriggerInteraction.Ignore: Aşağıdaki devasa KillZone sensörünü görmezden gelmesi için                
+                int layerMask = LayerMask.GetMask("GameplayObjects");
+
+                // Radarı SADECE o katmana atıyoruz. Arka plandaki duvarları, sandalyeleri vs. GÖRMEZDEN GELECEK.
+                Collider[] overlaps = Physics.OverlapBox(worldCenter, halfExtents, box.transform.rotation, layerMask, QueryTriggerInteraction.Ignore);
+
                 foreach (Collider overlap in overlaps)
                 {
                     // Eğer çarptığı obje hayalet objenin kendisi değilse, içeride başka bir parça var demektir!
