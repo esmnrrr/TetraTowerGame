@@ -183,29 +183,29 @@ namespace Game.Presentation.Input
         {
             // Hayalet obje üzerindeki tüm BoxCollider'ları bul
             BoxCollider[] boxes = ghostPiece.GetComponentsInChildren<BoxCollider>();
+            int layerMask = LayerMask.GetMask("GameplayObjects");
             
             foreach (BoxCollider box in boxes)
             {
                 // Kutunun dünyadaki merkez noktasını ve yarı boyutunu hesapla
                 Vector3 worldCenter = box.transform.TransformPoint(box.center);
-                Vector3 halfExtents = box.size * 0.5f;
+                Vector3 halfExtents = Vector3.Scale(box.size, box.transform.lossyScale) * 0.45f;
                 
-                // Kutuyu matematiksel olarak %10 küçültüyoruz.
-                // Sebebi: Oyuncu parçayı diğerinin tam yanına (sıfıra sıfır) değdirerek bırakmak isteyebilir.
-                halfExtents *= 0.90f; 
-
-                // O bölgede başka bir katı obje var mı diye görünmez bir kutu fırlat
-                // QueryTriggerInteraction.Ignore: Aşağıdaki devasa KillZone sensörünü görmezden gelmesi için                
-                int layerMask = LayerMask.GetMask("GameplayObjects");
-
                 // Radarı SADECE o katmana atıyoruz. Arka plandaki duvarları, sandalyeleri vs. GÖRMEZDEN GELECEK.
                 Collider[] overlaps = Physics.OverlapBox(worldCenter, halfExtents, box.transform.rotation, layerMask, QueryTriggerInteraction.Ignore);
 
                 foreach (Collider overlap in overlaps)
                 {
+                    // Eğer radara takılan obje, hayalet objenin (veya onun altındaki bir parçanın) KENDİSİYSE direkt pas geç!
+                    if (overlap.gameObject == ghostPiece || overlap.transform.IsChildOf(ghostPiece.transform))
+                    {
+                        continue; // Kendi 2. veya 3. collider'ını buldun, sorun yok, aramaya devam et.
+                    }
+
                     // Eğer çarptığı obje hayalet objenin kendisi değilse, içeride başka bir parça var demektir!
                     if (overlap.transform.root != ghostPiece.transform.root)
                     {
+                        Debug.LogWarning("YERLEŞTİRME ENGELLENDİ! Çarpan Obje: " + overlap.gameObject.name);
                         return false; // Çakışma var, yerleştirme BAŞARISIZ!
                     }
                 }

@@ -284,7 +284,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.UI.UIButtonJuice
   pressedScale: 0.92
-  pressedYOffset: -4
   animationSpeed: 25
 --- !u!1 &1142846464606917025
 GameObject:
@@ -1153,7 +1152,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.UI.UIButtonJuice
   pressedScale: 0.92
-  pressedYOffset: -4
   animationSpeed: 25
 --- !u!1 &4463372609842707578
 GameObject:
@@ -1490,7 +1488,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.UI.UIButtonJuice
   pressedScale: 0.92
-  pressedYOffset: -4
   animationSpeed: 25
 --- !u!1 &5803778598569587653
 GameObject:
@@ -1660,7 +1657,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.UI.UIButtonJuice
   pressedScale: 0.92
-  pressedYOffset: -4
   animationSpeed: 25
 --- !u!1 &6005919114449690333
 GameObject:
