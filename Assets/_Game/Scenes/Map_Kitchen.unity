@@ -9136,6 +9136,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 403500151027214506, guid: 51ef3d204b7fb8a49b051176793075db, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1983021068298040069, guid: 51ef3d204b7fb8a49b051176793075db, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -9156,14 +9160,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: GameInCanvas
       objectReference: {fileID: 0}
-    - target: {fileID: 4463372609842707578, guid: 51ef3d204b7fb8a49b051176793075db, type: 3}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5013669817702864440, guid: 51ef3d204b7fb8a49b051176793075db, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 42278338}
+    - target: {fileID: 5798396216291589660, guid: 51ef3d204b7fb8a49b051176793075db, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 7353372169726133712, guid: 51ef3d204b7fb8a49b051176793075db, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -9260,8 +9264,8 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 7961965040004863797, guid: 51ef3d204b7fb8a49b051176793075db, type: 3}
-      propertyPath: m_IsActive
+    - target: {fileID: 8826691598714231971, guid: 51ef3d204b7fb8a49b051176793075db, type: 3}
+      propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
