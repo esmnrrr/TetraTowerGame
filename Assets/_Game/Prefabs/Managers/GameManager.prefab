@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.Input.PiecePlacementController
   placementDepth: 0
-  rotationSpeed: 90
+  rotationSpeed: 45
   currentPieceDef: {fileID: 0}
   pieceFactory: {fileID: 7336443621477161776}
   ghostMaterial: {fileID: 0}

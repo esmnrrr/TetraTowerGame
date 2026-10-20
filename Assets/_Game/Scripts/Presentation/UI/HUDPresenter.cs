@@ -35,6 +35,20 @@ namespace Game.Presentation.UI
         public GameObject gameOverPanel;
         public TMP_Text scoreText; 
 
+        [Header("In-Game HUD Elements")]
+        public GameObject controlsHint; 
+        public GameObject roundInfo;
+        public TMP_Text roundInfoText;   
+
+        public RoundJuiceEffect roundJuice;
+
+        [Header("Pause UI Elements")]
+        public GameObject pauseContainer;
+        public GameObject settingsPanel;
+        public GameObject pauseMainCard; // Pause menüsünün ana kartı
+
+        private bool isPaused = false;
+
         // O an sunulan 3 parçayı hafızada tutmak için
         private List<PieceDefinition> currentOptions;
 
@@ -43,6 +57,22 @@ namespace Game.Presentation.UI
             // Oyun başlar başlamaz UI'ı test etmek için ilk seçim ekranını gösteriyoruz.
             // İleride bu TurnCoordinator tarafından çağrılacak!
             ShowPieceSelection();
+        }
+
+        private void Update()
+        {
+            // Oyuncu ESC tuşuna bastığında Duraklatma menüsünü aç/kapat
+            if (UnityEngine.Input.GetKeyDown(KeyCode.Escape))
+            {
+                if (isPaused)
+                {
+                    ResumeGame();
+                }
+                else
+                {
+                    PauseGame();
+                }
+            }
         }
 
         /// <summary>
@@ -118,10 +148,27 @@ namespace Game.Presentation.UI
             }
         }
 
+        // Tur Yazısını Güncelleyen Metod
+        public void UpdateRoundText(int currentTurn)
+        {
+            if (roundInfoText != null)
+            {
+                roundInfoText.text = $"Turn {currentTurn}";
+            }
+
+            if (roundJuice != null)
+            {
+                roundJuice.PlayJuiceEffect();
+            }
+        }
+
+        // Game Over ekranını gösteren metod
         public void ShowGameOver(int survivedTurns)
         {
             // Seçim menüsünü tamamen kapat
             if (selectionPanel != null) selectionPanel.SetActive(false);
+            if (controlsHint != null) controlsHint.SetActive(false);
+            if (roundInfo != null) roundInfo.gameObject.SetActive(false);
             
             // Game Over ekranını aç
             if (gameOverPanel != null)
@@ -137,6 +184,59 @@ namespace Game.Presentation.UI
         public void RestartGame()
         {
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
+        // Oyunu Duraklatır
+        public void PauseGame()
+        {
+            isPaused = true;
+            if (pauseContainer != null) pauseContainer.SetActive(true);
+            
+            // Her duraklatıldığında ana menü kartı açık, ayarlar paneli kapalı başlasın!
+            if (pauseMainCard != null) pauseMainCard.SetActive(true);
+            if (settingsPanel != null) settingsPanel.SetActive(false);
+
+            Time.timeScale = 0f;
+        }
+
+        // Oyuna Devam Etmesini Sağlar
+        public void ResumeGame()
+        {
+            isPaused = false;
+            if (pauseContainer != null) pauseContainer.SetActive(false);
+
+            Time.timeScale = 1f;
+        }
+
+        // Oyunu Sıfırlar (Restart Button OnClick)
+        public void RestartGameFromPause()
+        {
+            // Sahneler arası veya restart atarken zamanın dondurulmuş kalmaması şarttır!
+            Time.timeScale = 1f; 
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        }
+
+        // Pause ekranındaki "Settings" butonuna basılınca çalışır
+        public void OpenSettings()
+        {
+            if (pauseMainCard != null) pauseMainCard.SetActive(false);
+            if (settingsPanel != null) settingsPanel.SetActive(true);
+        }
+
+        // Settings ekranındaki "Back" butonuna basılınca çalışır
+        public void CloseSettings()
+        {
+            if (settingsPanel != null) settingsPanel.SetActive(false);
+            if (pauseMainCard != null) pauseMainCard.SetActive(true);
+        }
+
+        // Ana Menüye Dönüş (Exit Button OnClick)
+        public void ExitToMainMenu()
+        {
+            Time.timeScale = 1f;
+            // İleride Ana Menü sahnen olunca onun indexini veya adını yazabilirsin:
+            // SceneManager.LoadScene("MainMenu");
+            Debug.Log("Ana Menüye Dönülüyor...");
         }
     }
 }

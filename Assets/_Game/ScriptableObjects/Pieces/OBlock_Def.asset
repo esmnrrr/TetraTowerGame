@@ -17,4 +17,4 @@ MonoBehaviour:
   Prefab: {fileID: 4888048454230256400, guid: d414d487c65dd904fb330cb1ffaef35d, type: 3}
   Mass: 4
   PhysicsMaterial: {fileID: 13400000, guid: 05da9053f00e6244a899bfc5cf4e769c, type: 2}
-  Icon: {fileID: 0}
+  Icon: {fileID: 7120687029835867733, guid: 76073b80243d95c4ba477e176e6b51f3, type: 3}
