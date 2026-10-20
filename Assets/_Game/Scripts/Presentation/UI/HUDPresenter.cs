@@ -34,6 +34,7 @@ namespace Game.Presentation.UI
         [Header("Game Over UI")]
         public GameObject gameOverPanel;
         public TMP_Text scoreText; 
+        public AudioClip gameOverSound;
 
         [Header("In-Game HUD Elements")]
         public GameObject controlsHint; 
@@ -170,6 +171,13 @@ namespace Game.Presentation.UI
             if (controlsHint != null) controlsHint.SetActive(false);
             if (roundInfo != null) roundInfo.gameObject.SetActive(false);
             
+            // GAME OVER SESİ
+            AudioSource audio = GetComponent<AudioSource>();
+            if (audio != null && gameOverSound != null)
+            {
+                audio.PlayOneShot(gameOverSound);
+            }
+
             // Game Over ekranını aç
             if (gameOverPanel != null)
             {

@@ -14,6 +14,10 @@ namespace Game.Presentation.UI
         private RectTransform rectTransform;
         private bool isPressed = false;
 
+        [Header("Audio Settings")]
+        public AudioSource audioSource;
+        public AudioClip clickSound;
+
         private void Awake()
         {
             rectTransform = GetComponent<RectTransform>();
@@ -27,6 +31,12 @@ namespace Game.Presentation.UI
         public void OnPointerDown(PointerEventData eventData)
         {
             isPressed = true;
+
+            // SES TETİKLEME:
+            if (audioSource != null && clickSound != null)
+            {
+                audioSource.PlayOneShot(clickSound);
+            }
         }
 
         public void OnPointerUp(PointerEventData eventData)
