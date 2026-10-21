@@ -10,15 +10,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: 598bf553f711ba045a6787cbe9f16aff, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.04
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 598bf553f711ba045a6787cbe9f16aff, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.04
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 598bf553f711ba045a6787cbe9f16aff, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.04
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: 598bf553f711ba045a6787cbe9f16aff, type: 3}
       propertyPath: m_LocalPosition.x
@@ -85,10 +85,10 @@ PrefabInstance:
       addedObject: {fileID: 1798309245776443962}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 598bf553f711ba045a6787cbe9f16aff, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 3374066409357119744}
+      addedObject: {fileID: 2687738500997457649}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 598bf553f711ba045a6787cbe9f16aff, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1265892580912021963}
+      addedObject: {fileID: 4068982369440648737}
   m_SourcePrefab: {fileID: 100100000, guid: 598bf553f711ba045a6787cbe9f16aff, type: 3}
 --- !u!1 &7430850734132428847 stripped
 GameObject:
@@ -122,7 +122,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 56
   m_CollisionDetection: 1
---- !u!65 &3374066409357119744
+--- !u!65 &2687738500997457649
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -141,9 +141,9 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 2, z: 1}
-  m_Center: {x: -0.8, y: 0.2, z: 0}
---- !u!65 &1265892580912021963
+  m_Size: {x: 0.17999999, y: 0.06, z: 0.06}
+  m_Center: {x: 0, y: -0.03, z: 0}
+--- !u!65 &4068982369440648737
 BoxCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -162,5 +162,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2, y: 1, z: 1}
-  m_Center: {x: 0.7, y: -0.3, z: 0}
+  m_Size: {x: 0.06, y: 0.06, z: 0.06}
+  m_Center: {x: -0.06, y: 0.03, z: 0}

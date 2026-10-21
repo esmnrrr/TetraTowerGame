@@ -10,15 +10,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: -8679921383154817045, guid: b0d16a060cd53484f8686bddef29df8c, type: 3}
       propertyPath: m_LocalScale.x
-      value: 0.04
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b0d16a060cd53484f8686bddef29df8c, type: 3}
       propertyPath: m_LocalScale.y
-      value: 0.04
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b0d16a060cd53484f8686bddef29df8c, type: 3}
       propertyPath: m_LocalScale.z
-      value: 0.04
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: -8679921383154817045, guid: b0d16a060cd53484f8686bddef29df8c, type: 3}
       propertyPath: m_LocalPosition.x
@@ -85,9 +85,6 @@ PrefabInstance:
       addedObject: {fileID: 1532524731268656907}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b0d16a060cd53484f8686bddef29df8c, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 4636314174269312056}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b0d16a060cd53484f8686bddef29df8c, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 8313286196457389636}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b0d16a060cd53484f8686bddef29df8c, type: 3}
       insertIndex: -1
@@ -125,28 +122,6 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 56
   m_CollisionDetection: 1
---- !u!64 &4636314174269312056
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6711193146747627420}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 4805911171534758207, guid: b0d16a060cd53484f8686bddef29df8c, type: 3}
 --- !u!65 &8313286196457389636
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -166,8 +141,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2, y: 1, z: 1}
-  m_Center: {x: 0.571, y: 0.571, z: 0}
+  m_Size: {x: 0.12, y: 0.06, z: 0.06}
+  m_Center: {x: -0.03, y: -0.03, z: 0}
 --- !u!65 &7113021982372194866
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -187,5 +162,5 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 2, y: 1, z: 1}
-  m_Center: {x: -0.429, y: -0.429, z: 0}
+  m_Size: {x: 0.12, y: 0.06, z: 0.06}
+  m_Center: {x: 0.03, y: 0.03, z: 0}
