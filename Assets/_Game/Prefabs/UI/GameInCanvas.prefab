@@ -667,6 +667,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.UI.UIButtonJuice
   pressedScale: 0.92
   animationSpeed: 25
+  audioSource: {fileID: 0}
+  clickSound: {fileID: 8300000, guid: 6bd0c898df56eba47b279342a13aeaad, type: 3}
 --- !u!1 &676684423976750308
 GameObject:
   m_ObjectHideFlags: 0
@@ -1201,6 +1203,7 @@ GameObject:
   - component: {fileID: 8446714315522163634}
   - component: {fileID: 1130568341395752732}
   - component: {fileID: 3186000423435980518}
+  - component: {fileID: 6668861736861928543}
   m_Layer: 5
   m_Name: WashiTape
   m_TagString: Untagged
@@ -1341,6 +1344,22 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!114 &6668861736861928543
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1345713275519810672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f30e73a666b357c488c4a8511cf47b49, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.UI.UIButtonJuice
+  pressedScale: 0.92
+  animationSpeed: 25
+  audioSource: {fileID: 0}
+  clickSound: {fileID: 8300000, guid: 6bd0c898df56eba47b279342a13aeaad, type: 3}
 --- !u!1 &1372838124926098291
 GameObject:
   m_ObjectHideFlags: 0
@@ -3919,6 +3938,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.UI.UIButtonJuice
   pressedScale: 0.92
   animationSpeed: 25
+  audioSource: {fileID: 0}
+  clickSound: {fileID: 8300000, guid: 6bd0c898df56eba47b279342a13aeaad, type: 3}
 --- !u!1 &4171093745630035772
 GameObject:
   m_ObjectHideFlags: 0
@@ -4067,6 +4088,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.UI.UIButtonJuice
   pressedScale: 0.92
   animationSpeed: 25
+  audioSource: {fileID: 0}
+  clickSound: {fileID: 8300000, guid: 6bd0c898df56eba47b279342a13aeaad, type: 3}
 --- !u!1 &4453549355878818113
 GameObject:
   m_ObjectHideFlags: 0
@@ -4600,6 +4623,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.UI.UIButtonJuice
   pressedScale: 0.92
   animationSpeed: 25
+  audioSource: {fileID: 0}
+  clickSound: {fileID: 8300000, guid: 6bd0c898df56eba47b279342a13aeaad, type: 3}
 --- !u!1 &4868250715479469927
 GameObject:
   m_ObjectHideFlags: 0
@@ -4769,6 +4794,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.UI.UIButtonJuice
   pressedScale: 0.92
   animationSpeed: 25
+  audioSource: {fileID: 0}
+  clickSound: {fileID: 8300000, guid: 6bd0c898df56eba47b279342a13aeaad, type: 3}
 --- !u!1 &4942355476740903458
 GameObject:
   m_ObjectHideFlags: 0
@@ -5290,6 +5317,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.UI.UIButtonJuice
   pressedScale: 0.92
   animationSpeed: 25
+  audioSource: {fileID: 0}
+  clickSound: {fileID: 8300000, guid: 6bd0c898df56eba47b279342a13aeaad, type: 3}
 --- !u!1 &5857331558523619493
 GameObject:
   m_ObjectHideFlags: 0
@@ -6200,6 +6229,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.UI.UIButtonJuice
   pressedScale: 0.92
   animationSpeed: 25
+  audioSource: {fileID: 0}
+  clickSound: {fileID: 8300000, guid: 6bd0c898df56eba47b279342a13aeaad, type: 3}
 --- !u!1 &7054223267210695139
 GameObject:
   m_ObjectHideFlags: 0
@@ -6733,6 +6764,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.UI.UIButtonJuice
   pressedScale: 0.92
   animationSpeed: 25
+  audioSource: {fileID: 0}
+  clickSound: {fileID: 8300000, guid: 6bd0c898df56eba47b279342a13aeaad, type: 3}
 --- !u!1 &7704561470962418090
 GameObject:
   m_ObjectHideFlags: 0
