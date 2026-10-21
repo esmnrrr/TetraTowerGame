@@ -19,12 +19,19 @@ namespace Game.Presentation.Input
         public PieceFactory pieceFactory;
         
         private GameObject ghostPiece; // Farenin ucunda gezen yarı saydam kopya
-        private Camera mainCamera;
+        private UnityEngine.Camera mainCamera;
         private Plane placementPlane; // Işınların çarpacağı matematiksel düzlem
         public event System.Action OnPieceDropped; // Parça bırakıldığında TurnCoordinator'a haber vermek için
+        public Material ghostMaterial;
+
+        [Header("Audio Settings")]
+        public AudioSource audioSource;
+        //public AudioClip placeSound;         // "Tik" sesi (Başarılı bırakma)
+        public AudioClip invalidPlaceSound;  // "Dizt" sesi (Geçersiz alan / Hata)
+
         private void Start()
         {
-            mainCamera = Camera.main;
+            mainCamera = UnityEngine.Camera.main;
             // Matematiksel bir düzlem oluşturuyoruz. 
             // Vector3.back (veya forward) düzlemin yüzünün nereye baktığını (Normal),
             // Vector3(0, 0, placementDepth) ise düzlemin merkez noktasını belirtir.
@@ -61,6 +68,12 @@ namespace Game.Presentation.Input
         private void CreateGhostPiece()
         {
             ghostPiece = Instantiate(currentPieceDef.Prefab);
+
+            MeshRenderer[] renderers = ghostPiece.GetComponentsInChildren<MeshRenderer>();
+            foreach (MeshRenderer r in renderers)
+            {
+                if (ghostMaterial != null) r.material = ghostMaterial;
+            }
             
             // DİKKAT: Hayalet objenin üzerindeki TÜM Collider'ları kapatıyoruz!
             Collider[] colliders = ghostPiece.GetComponentsInChildren<Collider>();
@@ -79,8 +92,11 @@ namespace Game.Presentation.Input
 
         private void HandleMovement()
         {
+            if (ghostPiece == null) return;
+            
             // 1. Ekrandaki fare pozisyonundan (2D) kameranın baktığı yöne doğru bir ışın (Ray) oluştur
             Ray ray = mainCamera.ScreenPointToRay(UnityEngine.Input.mousePosition);
+            placementPlane = new Plane(Vector3.back, new Vector3(0, 0, placementDepth));
             
             // 2. Bu ışın, Start() metodunda oluşturduğumuz düzlemle kesişiyor mu?
             float distanceToPlane;
@@ -89,6 +105,8 @@ namespace Game.Presentation.Input
                 // 3. Kesiştiyse, ışının başlangıç noktasından düzleme olan mesafe kadar git
                 // ve o tam 3D koordinatı bul.
                 Vector3 targetPosition = ray.GetPoint(distanceToPlane);
+
+                targetPosition.z = placementDepth;
                 
                 // 4. Ghost objeyi o noktaya taşı
                 ghostPiece.transform.position = targetPosition;
@@ -124,6 +142,12 @@ namespace Game.Presentation.Input
                 if (!IsPlacementValid())
                 {
                     Debug.LogWarning("DİKKAT: Parça başka bir objenin içinde! Buraya bırakılamaz.");
+
+                    if (audioSource != null && invalidPlaceSound != null)
+                    {
+                        audioSource.PlayOneShot(invalidPlaceSound);
+                    }
+
                     return; // Kodu burada durdur, parçayı bırakmasına İZİN VERME!
                 }
 
@@ -170,26 +194,29 @@ namespace Game.Presentation.Input
         {
             // Hayalet obje üzerindeki tüm BoxCollider'ları bul
             BoxCollider[] boxes = ghostPiece.GetComponentsInChildren<BoxCollider>();
+            int layerMask = LayerMask.GetMask("GameplayObjects");
             
             foreach (BoxCollider box in boxes)
             {
                 // Kutunun dünyadaki merkez noktasını ve yarı boyutunu hesapla
                 Vector3 worldCenter = box.transform.TransformPoint(box.center);
-                Vector3 halfExtents = box.size * 0.5f;
+                Vector3 halfExtents = Vector3.Scale(box.size, box.transform.lossyScale) * 0.45f;
                 
-                // Kutuyu matematiksel olarak %10 küçültüyoruz.
-                // Sebebi: Oyuncu parçayı diğerinin tam yanına (sıfıra sıfır) değdirerek bırakmak isteyebilir.
-                halfExtents *= 0.90f; 
+                // Radarı SADECE o katmana atıyoruz. Arka plandaki duvarları, sandalyeleri vs. GÖRMEZDEN GELECEK.
+                Collider[] overlaps = Physics.OverlapBox(worldCenter, halfExtents, box.transform.rotation, layerMask, QueryTriggerInteraction.Ignore);
 
-                // O bölgede başka bir katı obje var mı diye görünmez bir kutu fırlat
-                // QueryTriggerInteraction.Ignore: Aşağıdaki devasa KillZone sensörünü görmezden gelmesi için
-                Collider[] overlaps = Physics.OverlapBox(worldCenter, halfExtents, box.transform.rotation, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
-                
                 foreach (Collider overlap in overlaps)
                 {
+                    // Eğer radara takılan obje, hayalet objenin (veya onun altındaki bir parçanın) KENDİSİYSE direkt pas geç!
+                    if (overlap.gameObject == ghostPiece || overlap.transform.IsChildOf(ghostPiece.transform))
+                    {
+                        continue; // Kendi 2. veya 3. collider'ını buldun, sorun yok, aramaya devam et.
+                    }
+
                     // Eğer çarptığı obje hayalet objenin kendisi değilse, içeride başka bir parça var demektir!
                     if (overlap.transform.root != ghostPiece.transform.root)
                     {
+                        Debug.LogWarning("YERLEŞTİRME ENGELLENDİ! Çarpan Obje: " + overlap.gameObject.name);
                         return false; // Çakışma var, yerleştirme BAŞARISIZ!
                     }
                 }

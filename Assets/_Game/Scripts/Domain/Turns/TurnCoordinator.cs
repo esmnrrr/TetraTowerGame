@@ -30,8 +30,6 @@ namespace Game.Domain.Turns
 
         public CollapseEvaluator collapseEvaluator;
         
-        // TODO: İleride CollapseEvaluator (Kule çöktü mü kontrolü) buraya eklenecek
-
         private void Start()
         {
             // Oyun başladığında gerekli bağlantıları kur
@@ -71,6 +69,7 @@ namespace Game.Domain.Turns
             // UI'a "Yeni 3 parça göster" emrini ver
             if (uiPresenter != null)
             {
+                uiPresenter.UpdateRoundText(currentTurnNumber); // Ekrana Turn 1, Turn 2 yazar
                 uiPresenter.ShowPieceSelection();
             }
         }
