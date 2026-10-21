@@ -22,8 +22,13 @@ namespace Game.Presentation.Input
         private UnityEngine.Camera mainCamera;
         private Plane placementPlane; // Işınların çarpacağı matematiksel düzlem
         public event System.Action OnPieceDropped; // Parça bırakıldığında TurnCoordinator'a haber vermek için
-
         public Material ghostMaterial;
+
+        [Header("Audio Settings")]
+        public AudioSource audioSource;
+        //public AudioClip placeSound;         // "Tik" sesi (Başarılı bırakma)
+        public AudioClip invalidPlaceSound;  // "Dizt" sesi (Geçersiz alan / Hata)
+
         private void Start()
         {
             mainCamera = UnityEngine.Camera.main;
@@ -137,6 +142,12 @@ namespace Game.Presentation.Input
                 if (!IsPlacementValid())
                 {
                     Debug.LogWarning("DİKKAT: Parça başka bir objenin içinde! Buraya bırakılamaz.");
+
+                    if (audioSource != null && invalidPlaceSound != null)
+                    {
+                        audioSource.PlayOneShot(invalidPlaceSound);
+                    }
+
                     return; // Kodu burada durdur, parçayı bırakmasına İZİN VERME!
                 }
 
