@@ -19,14 +19,14 @@ namespace Game.Presentation.Input
         public PieceFactory pieceFactory;
         
         private GameObject ghostPiece; // Farenin ucunda gezen yarı saydam kopya
-        private Camera mainCamera;
+        private UnityEngine.Camera mainCamera;
         private Plane placementPlane; // Işınların çarpacağı matematiksel düzlem
         public event System.Action OnPieceDropped; // Parça bırakıldığında TurnCoordinator'a haber vermek için
 
         public Material ghostMaterial;
         private void Start()
         {
-            mainCamera = Camera.main;
+            mainCamera = UnityEngine.Camera.main;
             // Matematiksel bir düzlem oluşturuyoruz. 
             // Vector3.back (veya forward) düzlemin yüzünün nereye baktığını (Normal),
             // Vector3(0, 0, placementDepth) ise düzlemin merkez noktasını belirtir.
