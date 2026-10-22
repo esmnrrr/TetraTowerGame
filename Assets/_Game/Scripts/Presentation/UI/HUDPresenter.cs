@@ -53,12 +53,11 @@ namespace Game.Presentation.UI
         // O an sunulan 3 parçayı hafızada tutmak için
         private List<PieceDefinition> currentOptions;
 
-        private void Start()
-        {
-            // Oyun başlar başlamaz UI'ı test etmek için ilk seçim ekranını gösteriyoruz.
-            // İleride bu TurnCoordinator tarafından çağrılacak!
-            ShowPieceSelection();
-        }
+        [Header("Input Control")]
+        public CanvasGroup selectionCanvasGroup;                       // SelectionPanel'deki CanvasGroup
+        public SelectionHighlightController highlightController;      // sahnedeki kırmızı ok kontrolcüsü
+
+        public IReadOnlyList<PieceDefinition> CurrentOptions => currentOptions;
 
         private void Update()
         {
@@ -76,6 +75,32 @@ namespace Game.Presentation.UI
             }
         }
 
+        public void SetHumanInputInteractable(bool isInteractable)
+        {
+            if (selectionCanvasGroup != null)
+            {
+                selectionCanvasGroup.interactable = isInteractable;
+                selectionCanvasGroup.blocksRaycasts = isInteractable;
+            }
+            else
+            {
+                foreach (var btn in pieceButtons)
+                    if (btn != null) btn.interactable = isInteractable;
+            }
+        }
+
+        public void HighlightCardForAI(int cardIndex)
+        {
+            if (highlightController != null) highlightController.SelectCard(cardIndex);
+        }
+
+        public void ShowVersusGameOver(bool humanWon, int turns)
+        {
+            ShowGameOver(turns - 1);
+            if (scoreText != null)
+                scoreText.text = humanWon ? "Kazandın! AI kuleyi yıktı." : "Kaybettin! Kuleyi sen yıktın.";
+        }
+
         /// <summary>
         /// PieceSelectionService'ten 3 yeni parça alır ve UI'ı doldurur.
         /// </summary>
@@ -86,6 +111,8 @@ namespace Game.Presentation.UI
                 Debug.LogError("HUDPresenter: PieceSelectionService atanmamış!");
                 return;
             }
+
+            SetHumanInputInteractable(true);
 
             // 1. Servisten 3 rastgele parça iste
             currentOptions = selectionService.GetThreeRandomPieces();
