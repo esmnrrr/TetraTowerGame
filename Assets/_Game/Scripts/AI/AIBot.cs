@@ -93,21 +93,9 @@ namespace Game.AI
                     yield break;
                 }
 
-                var prefabs = new List<GameObject>(options.Count);
-                var masses = new List<float>(options.Count);
-                for (int i = 0; i < options.Count; i++)
-                {
-                    prefabs.Add(options[i].Prefab);
-                    float mass = 1f;
-                    var prb = options[i].Prefab.GetComponent<Rigidbody>();
-                    if (prb == null) prb = options[i].Prefab.GetComponentInChildren<Rigidbody>();
-                    if (prb != null) mass = prb.mass;
-                    masses.Add(mass);
-                }
-
-                // 3) En iyi hamleyi planner seçsin (denge farkındalıklı)
+                // 3) En iyi hamleyi planner seçsin (tarama + gerçek fizik simülasyonu)
                 AIPlanner.AIMove move = default;
-                yield return planner.PlanRoutine(prefabs, masses, m => move = m);
+                yield return planner.PlanRoutine(options, m => move = m);
 
                 if (!move.found)
                 {

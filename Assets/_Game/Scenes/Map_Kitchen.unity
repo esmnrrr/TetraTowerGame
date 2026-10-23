@@ -920,6 +920,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1136565049}
     - target: {fileID: 6552206959219020946, guid: d16220ae1b0c6324d904d862b365bbf0, type: 3}
+      propertyPath: titleText
+      value: 
+      objectReference: {fileID: 1792230660}
+    - target: {fileID: 6552206959219020946, guid: d16220ae1b0c6324d904d862b365bbf0, type: 3}
       propertyPath: roundJuice
       value: 
       objectReference: {fileID: 1174720565}
@@ -3294,16 +3298,32 @@ MonoBehaviour:
   collisionMask:
     serializedVersion: 2
     m_Bits: 0
-  supportMarginRatio: 0.1
-  torqueSafetyFactor: 1.5
   rotationStepDegrees: 15
+  supportMarginRatio: 0.1
   depthWeight: 3
   centerWeight: 1
+  supportWeight: 1.5
   balanceWeight: 3
-  aggression: 0.4
+  torqueSafetyFactor: 1.5
   jitter: 0.02
+  useSandbox: 1
+  difficulty: 1
+  candidatesPerCard: 8
+  simBudgetMs: 8
+  aggression: 0.4
+  targetTilt01: 0.5
+  disturbWeight: 3
+  shiftWeight: 2
+  opponentWeight: 3
+  robustnessOffset: 0.004
+  robustnessAngle: 1.5
+  fallDepth: 2
+  environmentRadius: 3
+  platformBody: {fileID: 1845751557}
+  collapseEvaluator: {fileID: 212636242}
   frameBudgetMs: 4
   logDecision: 1
+  logEveryCandidate: 0
 --- !u!114 &264969635
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9473,6 +9493,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4178844843942143141, guid: 51ef3d204b7fb8a49b051176793075db, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4463372609842707578, guid: 51ef3d204b7fb8a49b051176793075db, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4915566362870708043, guid: 51ef3d204b7fb8a49b051176793075db, type: 3}
@@ -20017,6 +20041,17 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 1030990281, guid: abc00000000010852538934778764189, type: 3}
   m_PrefabInstance: {fileID: 1783449639}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1792230660 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7924177903770302251, guid: 51ef3d204b7fb8a49b051176793075db, type: 3}
+  m_PrefabInstance: {fileID: 837945160}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!1001 &1792591361
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -20839,6 +20874,11 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!54 &1845751557 stripped
+Rigidbody:
+  m_CorrespondingSourceObject: {fileID: 921371848791532245, guid: e67032a865c83b2418a1c02ef6c60b14, type: 3}
+  m_PrefabInstance: {fileID: 69575784}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1868497800
 PrefabInstance:
   m_ObjectHideFlags: 0

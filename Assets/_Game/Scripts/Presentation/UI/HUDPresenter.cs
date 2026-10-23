@@ -33,6 +33,7 @@ namespace Game.Presentation.UI
 
         [Header("Game Over UI")]
         public GameObject gameOverPanel;
+        public TMP_Text titleText;
         public TMP_Text scoreText; 
         public AudioClip gameOverSound;
 
@@ -92,13 +93,6 @@ namespace Game.Presentation.UI
         public void HighlightCardForAI(int cardIndex)
         {
             if (highlightController != null) highlightController.SelectCard(cardIndex);
-        }
-
-        public void ShowVersusGameOver(bool humanWon, int turns)
-        {
-            ShowGameOver(turns - 1);
-            if (scoreText != null)
-                scoreText.text = humanWon ? "Kazandın! AI kuleyi yıktı." : "Kaybettin! Kuleyi sen yıktın.";
         }
 
         /// <summary>
@@ -193,7 +187,6 @@ namespace Game.Presentation.UI
         // Game Over ekranını gösteren metod
         public void ShowGameOver(int survivedTurns)
         {
-            // Seçim menüsünü tamamen kapat
             if (selectionPanel != null) selectionPanel.SetActive(false);
             if (controlsHint != null) controlsHint.SetActive(false);
             if (roundInfo != null) roundInfo.gameObject.SetActive(false);
@@ -205,16 +198,62 @@ namespace Game.Presentation.UI
                 audio.PlayOneShot(gameOverSound);
             }
 
-            // Game Over ekranını aç
+            // Game Over ekranını aç ve metinleri ayarla
             if (gameOverPanel != null)
             {
                 gameOverPanel.SetActive(true);
-                if (scoreText != null)
-                {
-                    scoreText.text = $"Tur Skorun: {survivedTurns}";
-                }
+                if (titleText != null) titleText.text = "TOWER COLLAPSE!";
+                if (scoreText != null) scoreText.text = $"SCORE: {survivedTurns}";
             }
         }
+
+        // AI / VS Modu için Game Over
+        public void ShowVersusGameOver(bool humanWon, int turns)
+        {
+            if (selectionPanel != null) selectionPanel.SetActive(false);
+            if (controlsHint != null) controlsHint.SetActive(false);
+            if (roundInfo != null) roundInfo.gameObject.SetActive(false);
+
+            AudioSource audio = GetComponent<AudioSource>();
+            if (audio != null && gameOverSound != null)
+            {
+                audio.PlayOneShot(gameOverSound);
+            }
+
+            if (gameOverPanel != null)
+            {
+                gameOverPanel.SetActive(true);
+
+                if (humanWon)
+                {
+                    if (titleText != null)
+                    {
+                        titleText.text = "WIN!";
+                        // Yeşil Renk (#2ECC71)
+                        titleText.color = new Color32(46, 204, 113, 255); 
+                    }
+
+                    if (scoreText != null)
+                    {
+                        scoreText.text = $"Score: {turns}!";
+                    }
+                }
+                else
+                {
+                    if (titleText != null)
+                    {
+                        titleText.text = "LOSE!";
+                        // Kırmızı Renk (#E74C3C)
+                        titleText.color = new Color32(231, 76, 60, 255); 
+                    }
+
+                    if (scoreText != null)
+                    {
+                        scoreText.text = $"Score: {turns}!";
+                    }
+                }
+            }
+}
 
         public void RestartGame()
         {
