@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 18831788566884062}
   - component: {fileID: 2433637039412616736}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Notch_Right
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51,8 +51,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 0.2, y: 0.1, z: 1}
-  m_Center: {x: 0.027, y: 0.523, z: 0}
+  m_Size: {x: 0.1, y: 0.1, z: 1}
+  m_Center: {x: -0.623, y: -0.077, z: 0}
 --- !u!1 &3511178633641062441
 GameObject:
   m_ObjectHideFlags: 0
@@ -67,7 +67,9 @@ GameObject:
   - component: {fileID: 9197997156582545130}
   - component: {fileID: 7813885211906565995}
   - component: {fileID: 8334356336471560788}
-  m_Layer: 0
+  - component: {fileID: 1883894192855343983}
+  - component: {fileID: 708776029354715642}
+  m_Layer: 6
   m_Name: Notch_Left
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -194,6 +196,48 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 0.2, y: 0.1, z: 1}
   m_Center: {x: 0.373, y: 0.123, z: 0}
+--- !u!65 &1883894192855343983
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3511178633641062441}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.2, y: 0.1, z: 1}
+  m_Center: {x: 0.473, y: 0.023, z: 0}
+--- !u!65 &708776029354715642
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3511178633641062441}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.2, y: 0.1, z: 1}
+  m_Center: {x: 0.573, y: -0.077, z: 0}
 --- !u!1 &5185897573298171895
 GameObject:
   m_ObjectHideFlags: 0
@@ -204,7 +248,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2628539288840129264}
   - component: {fileID: 1546788683427890172}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Platform_Pivot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -325,6 +369,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: platform
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 1573be9d2e0e9184e884a666574c709f, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
@@ -386,7 +434,7 @@ Rigidbody:
   m_Mass: 15
   m_LinearDamping: 0
   m_AngularDamping: 2
-  m_CenterOfMass: {x: 0, y: -0.5, z: 0}
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
   m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
   m_IncludeLayers:
@@ -410,7 +458,7 @@ HingeJoint:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2834895854372765762}
   serializedVersion: 3
-  m_ConnectedBody: {fileID: 1546788683427890172}
+  m_ConnectedBody: {fileID: 0}
   m_ConnectedArticulationBody: {fileID: 0}
   m_Anchor: {x: 0, y: 0, z: 0}
   m_Axis: {x: 0, y: 0, z: 1}

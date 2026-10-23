@@ -1,20 +1,33 @@
 using UnityEngine;
+using System;
 using System.Collections;
-using Game.Presentation.UI; // HUDPresenter için
-using Game.Application.UseCases; // PhysicsSettleDetector için
-using Game.Presentation.Input; // PiecePlacementController için
+using Game.Presentation.UI;       // HUDPresenter için
+using Game.Application.UseCases;  // PhysicsSettleDetector, CollapseEvaluator için
+using Game.Presentation.Input;    // PiecePlacementController için
 
 namespace Game.Domain.Turns
 {
     // Oyunun içindeki anlık durumları temsil eden numaralandırma (State Machine)
     public enum TurnState
     {
-        Setup,              // Oyun başlıyor, ayarlar yapılıyor
-        WaitingForSelection,// UI açık, oyuncunun 3 parçadan birini seçmesi bekleniyor
-        PlacingPiece,       // Oyuncu parçayı seçti, fareyle yerleştiriyor
-        Simulating,         // Parça bırakıldı, fizik motoru devrede (kule sallanıyor)
-        Evaluating,         // Fizik durdu, kulenin çöküp çökmediği kontrol ediliyor
-        GameOver            // Kule çöktü, oyun bitti
+        Setup,               // Oyun başlıyor
+        WaitingForSelection, // İNSAN: UI açık, 3 parçadan birini seçmesi bekleniyor
+        PlacingPiece,        // Parça seçildi, yerleştiriliyor (insan fareyle, AI kendi koluyla)
+        Simulating,          // Parça bırakıldı, fizik çalışıyor
+        Evaluating,          // Fizik durdu, çöküş kontrol ediliyor
+        GameOver             // Kule çöktü
+    }
+
+    public enum GameMode
+    {
+        Practice, // Tek kişilik endless mod (sıra hep insanda)
+        VsAI      // Yapay zekaya karşı
+    }
+
+    public enum PlayerType
+    {
+        Human,
+        AI
     }
 
     public class TurnCoordinator : MonoBehaviour
@@ -23,64 +36,69 @@ namespace Game.Domain.Turns
         public TurnState currentState = TurnState.Setup;
         public int currentTurnNumber = 1;
 
+        [Header("Game Configuration")]
+        public GameMode currentMode = GameMode.Practice;
+        public PlayerType currentPlayer = PlayerType.Human;
+
         [Header("References")]
         public HUDPresenter uiPresenter;
         public PiecePlacementController placementController;
         public PhysicsSettleDetector settleDetector;
-
         public CollapseEvaluator collapseEvaluator;
-        
+
+        /// <summary>
+        /// AI sırası geldiğinde yayınlanır. TurnCoordinator AI'ı tanımaz; AIBot bu olaya abone olur.
+        /// </summary>
+        public event Action OnAITurnRequested;
+
+        // Parçayı en son bırakan oyuncu: kule çökerse kaybeden odur.
+        private PlayerType lastPlacer = PlayerType.Human;
+
         private void Start()
         {
-            // Oyun başladığında gerekli bağlantıları kur
-            if (settleDetector != null)
-            {
-                // SettleDetector "Fizik Durdu" dediğinde, bizim OnPhysicsSettled metodumuzu çalıştıracak
-                settleDetector.OnPhysicsSettled += OnPhysicsSettled;
-            }
+            if (settleDetector != null) settleDetector.OnPhysicsSettled += OnPhysicsSettled;
+            if (placementController != null) placementController.OnPieceDropped += OnHumanPieceDropped;
 
-            if (placementController != null)
-            {
-                // PlacementController "Parça Bırakıldı" dediğinde, bizim OnPieceDropped metodumuzu çalıştıracak
-                placementController.OnPieceDropped += OnPieceDropped;
-            }
-
-            // İlk turu başlat
             StartTurn();
         }
 
         private void OnDestroy()
         {
-            // Obje silinirse (sahne değişirse vb.) bağlantıları temizlemek (Memory leak önlemek için)
             if (settleDetector != null) settleDetector.OnPhysicsSettled -= OnPhysicsSettled;
-            if (placementController != null) placementController.OnPieceDropped -= OnPieceDropped;
+            if (placementController != null) placementController.OnPieceDropped -= OnHumanPieceDropped;
         }
 
-        /// <summary>
-        /// Yeni bir turu başlatır. (TurnStart)
-        /// </summary>
+        /// <summary>Yeni bir turu başlatır.</summary>
         public void StartTurn()
         {
             if (currentState == TurnState.GameOver) return;
 
-            Debug.Log($"--- TUR {currentTurnNumber} BAŞLADI ---");
-            currentState = TurnState.WaitingForSelection;
+            bool isAITurn = currentMode == GameMode.VsAI && currentPlayer == PlayerType.AI;
 
-            // UI'a "Yeni 3 parça göster" emrini ver
+            Debug.Log($"--- TUR {currentTurnNumber} BAŞLADI | MOD: {currentMode} | SIRA: {currentPlayer} ---");
+
+            // AI kendi parçasını kendisi yerleştirir, o yüzden doğrudan PlacingPiece'te başlar.
+            currentState = isAITurn ? TurnState.PlacingPiece : TurnState.WaitingForSelection;
+
             if (uiPresenter != null)
             {
-                uiPresenter.UpdateRoundText(currentTurnNumber); // Ekrana Turn 1, Turn 2 yazar
-                uiPresenter.ShowPieceSelection();
+                uiPresenter.UpdateRoundText(currentTurnNumber);
+                uiPresenter.ShowPieceSelection();                       // 3 yeni parça üretir
+                uiPresenter.SetHumanInputInteractable(!isAITurn);       // AI sırasında insan kartlara basamaz
+            }
+
+            if (isAITurn)
+            {
+                OnAITurnRequested?.Invoke();
             }
         }
 
-        /// <summary>
-        /// HUDPresenter'da (UI) bir butona basıldığında çağrılır (HUDPresenter içinden manuel olarak bağlayacağız veya event ile tetikleyeceğiz).
-        /// Ancak şu an HUDPresenter direkt PlacementController'a gönderiyor. 
-        /// Biz sadece State'i güncelliyoruz.
-        /// </summary>
+        /// <summary>HUDPresenter'da insan bir kart seçtiğinde çağrılır.</summary>
         public void OnPieceSelectedFromUI()
         {
+            // AI sırasında UI'dan gelen çağrıları yok say
+            if (currentMode == GameMode.VsAI && currentPlayer != PlayerType.Human) return;
+
             if (currentState == TurnState.WaitingForSelection)
             {
                 currentState = TurnState.PlacingPiece;
@@ -88,60 +106,65 @@ namespace Game.Domain.Turns
             }
         }
 
-        /// <summary>
-        /// PiecePlacementController, sol tıka basıp parçayı fırlattığında bunu çağırır.
-        /// </summary>
-        private void OnPieceDropped()
+        /// <summary>İnsanın parça bırakma olayı. Tek giriş noktasına yönlendirir.</summary>
+        private void OnHumanPieceDropped()
         {
-            if (currentState == TurnState.PlacingPiece)
-            {
-                currentState = TurnState.Simulating;
-                Debug.Log("Durum: Fizik Simülasyonu (Kule sallanıyor)...");
-                
-                // SettleDetector'a "Takibi başlat, kule durduğunda haber ver" diyoruz
-                if (settleDetector != null)
-                {
-                    settleDetector.StartDetecting();
-                }
-            }
+            BeginSimulation();
         }
 
         /// <summary>
-        /// PhysicsSettleDetector, her şeyin durduğuna ikna olunca bu metodu tetikler.
+        /// İNSAN VE AI AYNI NOKTADAN GEÇER. Parça bırakıldığında çağrılır:
+        /// durumu Simulating yapar ve fizik sakinleşme takibini başlatır.
         /// </summary>
+        public void BeginSimulation()
+        {
+            if (currentState != TurnState.PlacingPiece) return;
+
+            lastPlacer = currentPlayer;
+            currentState = TurnState.Simulating;
+            Debug.Log($"Durum: Fizik Simülasyonu (Kule sallanıyor)... Bırakan: {lastPlacer}");
+
+            if (settleDetector != null) settleDetector.StartDetecting();
+        }
+
         private void OnPhysicsSettled()
         {
-            if (currentState == TurnState.Simulating)
-            {
-                currentState = TurnState.Evaluating;
-                Debug.Log("Durum: Kule durdu. Çöküş kontrolü yapılıyor...");
+            if (currentState != TurnState.Simulating) return;
 
-                // ÇÖKÜŞ KONTROLÜ BURADA YAPILIYOR!
-                if (collapseEvaluator != null && collapseEvaluator.HasTowerCollapsed)
+            currentState = TurnState.Evaluating;
+            Debug.Log("Durum: Kule durdu. Çöküş kontrolü yapılıyor...");
+
+            if (collapseEvaluator != null && collapseEvaluator.HasTowerCollapsed)
+            {
+                currentState = TurnState.GameOver;
+                Debug.Log($"OYUN BİTTİ! Kule yıkıldı. Kaybeden: {lastPlacer}");
+
+                if (uiPresenter != null)
                 {
-                    currentState = TurnState.GameOver;
-                    Debug.Log("OYUN BİTTİ! Kule yıkıldı.");
-                    
-                    if (uiPresenter != null) 
-                    {
-                        uiPresenter.ShowGameOver(currentTurnNumber - 1); // Son tamamlanan turu gönder
-                    }
+                    if (currentMode == GameMode.VsAI)
+                        uiPresenter.ShowVersusGameOver(lastPlacer == PlayerType.AI, currentTurnNumber);
+                    else
+                        uiPresenter.ShowGameOver(currentTurnNumber - 1);
                 }
-                else
-                {
-                    // Kule sağlamsa bir sonraki tura geç
-                    StartCoroutine(EndTurnRoutine());
-                }
+            }
+            else
+            {
+                StartCoroutine(EndTurnRoutine());
             }
         }
 
         private IEnumerator EndTurnRoutine()
         {
-            // Kule durduktan sonra oyuncuya durumu kavraması için kısa bir es (örneğin 1 saniye) veriyoruz
             yield return new WaitForSeconds(1f);
 
             currentTurnNumber++;
-            StartTurn(); // Yeni 3 parça ile döngü tekrar başlıyor!
+
+            // Sadece VsAI modunda sıra el değiştirir
+            currentPlayer = currentMode == GameMode.VsAI
+                ? (currentPlayer == PlayerType.Human ? PlayerType.AI : PlayerType.Human)
+                : PlayerType.Human;
+
+            StartTurn();
         }
     }
 }
