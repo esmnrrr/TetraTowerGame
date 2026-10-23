@@ -68,6 +68,10 @@ namespace Game.AI
         [Tooltip("Güvenli tork = en ağır parça x platform yarı genişliği x bu çarpan. Küçük = daha temkinli")]
         [SerializeField] private float torqueSafetyFactor = 1.5f;
 
+        [Header("Dönüş (tırtıklı platform için ince açılar)")]
+        [Tooltip("Denenecek açı adımı. 15 = 24 açı (üçgen oyuklara 45 derece oturabilir). Yavaşsa 22.5 / 30 yap.")]
+        [SerializeField, Range(5f, 90f)] private float rotationStepDegrees = 15f;
+
         [Header("Puanlama")]
         [SerializeField] private float depthWeight = 2f;
         [SerializeField] private float centerWeight = 1.5f;
@@ -79,8 +83,6 @@ namespace Game.AI
         [Header("Performans / Debug")]
         [SerializeField] private float frameBudgetMs = 4f;
         [SerializeField] private bool logDecision = true;
-
-        private static readonly int[] RotationAngles = { 0, 90, 180, 270 };
 
         private int mask;
         private float scanStep, supportCheckDistance, snapStep, maxOverlapResolveUp;
@@ -129,7 +131,6 @@ namespace Game.AI
             float yMax = GetTowerTopY() + 5f * cell;
 
             int xSteps = Mathf.FloorToInt((xMax - xMin) / scanStep + 0.0001f);
-            int ySteps = Mathf.FloorToInt((yMax - yMin) / scanStep + 0.0001f);
             float halfRangeX = Mathf.Max(0.0001f, xMax - platformCenter.x);
 
             float sliceStart = Time.realtimeSinceStartup;
@@ -141,7 +142,7 @@ namespace Game.AI
                 Shape shape = shapes[card];
                 if (shape == null || shape.boxes.Length == 0) continue;
 
-                foreach (int angle in RotationAngles)
+                for (float angle = 0f; angle < 360f - 0.01f; angle += rotationStepDegrees)
                 {
                     Quaternion rot = Quaternion.Euler(0f, 0f, angle);
                     Vector3 comOffset = rot * shape.com;
@@ -150,46 +151,42 @@ namespace Game.AI
                     {
                         float x = xMin + ix * scanStep;
 
-                        for (int iy = 0; iy <= ySteps; iy++)
+                        // Parçayı bu X'te yukarıdan "bırak": değdiği ilk yerde (oyuğun dibi dahil) durur.
+                        if (TryDropToRest(shape.boxes, x, yMax, yMin, rot, out float y))
                         {
-                            float y = yMin + iy * scanStep;
                             Vector3 pos = new Vector3(x, y, platformCenter.z);
-
-                            // 1) BOŞLUK
-                            if (!IsFree(shape.boxes, pos, rot, extentsShrink)) continue;
-                            // 2) TABAN (ucuz ön eleme: toplu kutu aşağı inince çarpıyor mu)
-                            if (IsFree(shape.boxes, pos + Vector3.down * supportCheckDistance, rot, extentsShrink)) continue;
-                            // 3) DENGE: ağırlık merkezi temas aralığının içinde mi
                             float comX = pos.x + comOffset.x;
-                            if (!HasStableSupport(shape.boxes, pos, rot, comX)) continue;
 
-                            // 4) TORK
-                            float torqueNew = currentTorque + shape.mass * (comX - platformCenter.x);
-                            float imbalance = Mathf.Abs(torqueNew) / maxSafeTorque;
-
-                            float depth01 = 1f - Mathf.InverseLerp(yMin, yMax, y);
-                            float center01 = 1f - Mathf.Clamp01(Mathf.Abs(comX - platformCenter.x) / halfRangeX);
-
-                            // Denge terimi: 0'a yakınlık (güvenli) ile 1'e yakınlık (tuzak) arasında karışım
-                            float capped = Mathf.Min(imbalance, 1f);
-                            float balanceTerm = Mathf.Lerp(-capped, capped, aggression);
-
-                            float score = depthWeight * depth01
-                                        + centerWeight * center01
-                                        + balanceWeight * balanceTerm
-                                        - 10f * Mathf.Max(0f, imbalance - 1f)   // güvenli sınırı aşanlar çok kötü
-                                        + UnityEngine.Random.Range(-jitter, jitter);
-                            accepted++;
-
-                            if (score > best.score)
+                            // DENGE: ağırlık merkezi temas aralığının içinde mi
+                            if (HasStableSupport(shape.boxes, pos, rot, comX))
                             {
-                                best.found = true;
-                                best.cardIndex = card;
-                                best.position = pos;
-                                best.rotation = rot;
-                                best.rotationDegrees = angle;
-                                best.score = score;
-                                bestImbalance = imbalance; bestDepth = depth01; bestCenter = center01;
+                                // TORK
+                                float torqueNew = currentTorque + shape.mass * (comX - platformCenter.x);
+                                float imbalance = Mathf.Abs(torqueNew) / maxSafeTorque;
+
+                                float depth01 = 1f - Mathf.InverseLerp(yMin, yMax, y);
+                                float center01 = 1f - Mathf.Clamp01(Mathf.Abs(comX - platformCenter.x) / halfRangeX);
+
+                                float capped = Mathf.Min(imbalance, 1f);
+                                float balanceTerm = Mathf.Lerp(-capped, capped, aggression);
+
+                                float score = depthWeight * depth01
+                                            + centerWeight * center01
+                                            + balanceWeight * balanceTerm
+                                            - 10f * Mathf.Max(0f, imbalance - 1f)
+                                            + UnityEngine.Random.Range(-jitter, jitter);
+                                accepted++;
+
+                                if (score > best.score)
+                                {
+                                    best.found = true;
+                                    best.cardIndex = card;
+                                    best.position = pos;
+                                    best.rotation = rot;
+                                    best.rotationDegrees = Mathf.RoundToInt(angle);
+                                    best.score = score;
+                                    bestImbalance = imbalance; bestDepth = depth01; bestCenter = center01;
+                                }
                             }
                         }
 
@@ -258,6 +255,34 @@ namespace Game.AI
                     return false;
             }
             return true;
+        }
+
+        /// <summary>
+        /// Parçayı verilen X'te yukarıdan aşağı indirir; ilk temasta durdurur (tırtıklı yüzeyde oyuğun içine girer).
+        /// Hiçbir şeye değmeden yMin'e inerse (platformun yanından düşüyorsa) false döner.
+        /// </summary>
+        private bool TryDropToRest(LocalBox[] boxes, float x, float yStart, float yMin, Quaternion rot, out float y)
+        {
+            y = yStart;
+            var pos = new Vector3(x, y, platformCenter.z);
+            if (!IsFree(boxes, pos, rot, extentsShrink)) return false;
+
+            float coarse = scanStep * 1.5f;   // ~cell/2: kalın tırtıkların içinden geçmez
+            bool hit = false;
+
+            while (y - coarse >= yMin)
+            {
+                pos.y = y - coarse;
+                if (!IsFree(boxes, pos, rot, extentsShrink)) { hit = true; break; }
+                y -= coarse;
+            }
+            while (y - snapStep >= yMin)
+            {
+                pos.y = y - snapStep;
+                if (!IsFree(boxes, pos, rot, extentsShrink)) { hit = true; break; }
+                y -= snapStep;
+            }
+            return hit;
         }
 
         /// <summary>
