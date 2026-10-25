@@ -56,6 +56,10 @@ namespace Game.Domain.Turns
 
         private void Start()
         {
+            // Menüden seçilen modu oku
+            string savedMode = PlayerPrefs.GetString("SelectedGameMode", "Practice");
+            currentMode = (savedMode == "VsAI") ? GameMode.VsAI : GameMode.Practice;
+            
             if (settleDetector != null) settleDetector.OnPhysicsSettled += OnPhysicsSettled;
             if (placementController != null) placementController.OnPieceDropped += OnHumanPieceDropped;
 
