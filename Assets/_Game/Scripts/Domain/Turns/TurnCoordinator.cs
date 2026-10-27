@@ -133,27 +133,45 @@ namespace Game.Domain.Turns
 
         private void OnPhysicsSettled()
         {
-            if (currentState != TurnState.Simulating) return;
-
-            currentState = TurnState.Evaluating;
-            Debug.Log("Durum: Kule durdu. Çöküş kontrolü yapılıyor...");
-
-            if (collapseEvaluator != null && collapseEvaluator.HasTowerCollapsed)
+            if (currentState == TurnState.Simulating)
             {
-                currentState = TurnState.GameOver;
-                Debug.Log($"OYUN BİTTİ! Kule yıkıldı. Kaybeden: {lastPlacer}");
+                currentState = TurnState.Evaluating;
+                Debug.Log("Durum: Fizik durdu. Çöküş ve Seviye kontrolü yapılıyor...");
 
-                if (uiPresenter != null)
+                var levelManager = FindAnyObjectByType<Game.Application.UseCases.LevelManager>();
+                
+                // 1. Durum: Kule Çöktü mü?
+                if (collapseEvaluator != null && collapseEvaluator.HasTowerCollapsed)
                 {
-                    if (currentMode == GameMode.VsAI)
-                        uiPresenter.ShowVersusGameOver(lastPlacer == PlayerType.AI, currentTurnNumber);
-                    else
+                    currentState = TurnState.GameOver;
+                    Debug.Log("OYUN BİTTİ! Kule yıkıldı.");
+                    
+                    if (levelManager != null)
+                    {
+                        levelManager.EvaluateAndFinishLevel(isTowerCollapsed: true);
+                    }
+                    else if (uiPresenter != null) 
+                    {
                         uiPresenter.ShowGameOver(currentTurnNumber - 1);
+                    }
                 }
-            }
-            else
-            {
-                StartCoroutine(EndTurnRoutine());
+                else
+                {
+                    // 2. Durum: Bölüm Hedefine Ulaşıldı mı? (Örn: Hedef parça sayısı dizildi mi?)
+                    if (levelManager != null && levelManager.currentLevelDefinition != null)
+                    {
+                        if (levelManager.PlacedPieceCount >= levelManager.currentLevelDefinition.targetPieceCount)
+                        {
+                            currentState = TurnState.GameOver; // Bölüm başarıyla bitti
+                            Debug.Log("SEVİYE BAŞARIYLA TAMAMLANDI!");
+                            levelManager.EvaluateAndFinishLevel(isTowerCollapsed: false);
+                            return;
+                        }
+                    }
+
+                    // Hedefe henüz ulaşılmadıysa bir sonraki tura geç
+                    StartCoroutine(EndTurnRoutine());
+                }
             }
         }
 

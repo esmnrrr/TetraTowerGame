@@ -60,6 +60,13 @@ namespace Game.Presentation.UI
 
         public IReadOnlyList<PieceDefinition> CurrentOptions => currentOptions;
 
+        [Header("Level Result UI")]
+        public GameObject resultPanel;
+        public TMP_Text resultTitleText;
+        public GameObject[] resultYellowStars = new GameObject[3]; // Sonuç ekranındaki 3 sarı yıldız
+        public Button nextLevelButton;
+        public Button mapButton;
+
         private void Update()
         {
             // Oyuncu ESC tuşuna bastığında Duraklatma menüsünü aç/kapat
@@ -309,8 +316,59 @@ namespace Game.Presentation.UI
         {
             Time.timeScale = 1f;
             // İleride Ana Menü sahnen olunca onun indexini veya adını yazabilirsin:
-            // SceneManager.LoadScene("MainMenu");
-            Debug.Log("Ana Menüye Dönülüyor...");
+            SceneManager.LoadScene("MainMenu");
+        }
+
+        /// <summary>
+        /// Bölüm tamamlandığında veya kule çöktüğünde Sonuç panelini açar.
+        /// </summary>
+        public void ShowLevelResults(int levelIndex, int starsEarned, bool isTowerCollapsed)
+        {
+            if (selectionPanel != null) selectionPanel.SetActive(false);
+            if (resultPanel != null) resultPanel.SetActive(true);
+
+            // Başlık
+            if (resultTitleText != null)
+            {
+                resultTitleText.text = isTowerCollapsed ? "KULE ÇÖKTÜ!" : $"BÖLÜM {levelIndex} TAMAMLANDI!";
+            }
+
+            // Yıldızları Göster (0 ile 3 arası)
+            for (int i = 0; i < resultYellowStars.Length; i++)
+            {
+                if (resultYellowStars[i] != null)
+                {
+                    resultYellowStars[i].SetActive(i < starsEarned);
+                }
+            }
+
+            // Buton Dinleyicileri
+            if (mapButton != null)
+            {
+                mapButton.onClick.RemoveAllListeners();
+                mapButton.onClick.AddListener(ReturnToMap);
+            }
+
+            if (nextLevelButton != null)
+            {
+                nextLevelButton.gameObject.SetActive(starsEarned > 0); // Sadece kazandıysa sonraki bölüm açılsın
+                nextLevelButton.onClick.RemoveAllListeners();
+                nextLevelButton.onClick.AddListener(() => LoadNextLevel(levelIndex + 1));
+            }
+        }
+
+        public void ReturnToMap()
+        {
+            Time.timeScale = 1f;
+            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu"); // Ana menü / Pathway sahnenin adı
+        }
+
+        public void LoadNextLevel(int nextLevelIndex)
+        {
+            Time.timeScale = 1f;
+            PlayerPrefs.SetInt("SelectedLevelIndex", nextLevelIndex);
+            PlayerPrefs.Save();
+            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
         }
     }
 }

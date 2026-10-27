@@ -1713,7 +1713,7 @@ MonoBehaviour:
   modeSelectionCard: {fileID: 872016210}
   settingsCard: {fileID: 980248419}
   pathwayCard: {fileID: 1033388751}
-  pathwayPresenter: {fileID: 1764617787}
+  pathwayPresenter: {fileID: 0}
   gameplaySceneName: Map_Kitchen
 --- !u!1001 &118423541
 PrefabInstance:
@@ -13987,6 +13987,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1033388752}
+  - component: {fileID: 1033388753}
   m_Layer: 5
   m_Name: PathwayCard
   m_TagString: Untagged
@@ -14018,6 +14019,36 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1033388753
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1033388751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0021c009875d65b4c873ad6799a2854f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.UI.PathwayMapPresenter
+  levelNodes:
+  - {fileID: 6964051311935332163}
+  - {fileID: 791938756}
+  - {fileID: 1118820425}
+  - {fileID: 465025570}
+  - {fileID: 513531267}
+  - {fileID: 1042745842}
+  - {fileID: 2027423877}
+  - {fileID: 79163886}
+  - {fileID: 1930349503}
+  - {fileID: 1951348217}
+  totalStarsText: {fileID: 2146979171}
+  totalWorldStarsMax: 30
+  kitchenButton: {fileID: 1728687832}
+  bathroomButton: {fileID: 1362342753}
+  livingRoomButton: {fileID: 791286925}
+  bedroomButton: {fileID: 1956113779}
+  progressRepository: {fileID: 1477960247}
 --- !u!1001 &1034701853
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -19608,50 +19639,17 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1474586688}
   m_CullTransparentMesh: 1
---- !u!1 &1477960246
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1477960248}
-  - component: {fileID: 1477960247}
-  m_Layer: 0
-  m_Name: SaveManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!114 &1477960247
+--- !u!114 &1477960247 stripped
 MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
+  m_CorrespondingSourceObject: {fileID: 506809643923660288, guid: 8e4641c1ff414ff46bd18f9879c15e38, type: 3}
+  m_PrefabInstance: {fileID: 3512181783028823720}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1477960246}
+  m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 87b8230dff2c16e4e9d09cc22a0a8914, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Infrastructure.Save.ProgressRepository
---- !u!4 &1477960248
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1477960246}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7.75286, y: 0.44057, z: 2.07474}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1489223590
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23589,68 +23587,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1762438272}
   m_CullTransparentMesh: 1
---- !u!1 &1764617785
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1764617786}
-  - component: {fileID: 1764617787}
-  m_Layer: 0
-  m_Name: PathwayManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1764617786
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1764617785}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1764617787
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1764617785}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0021c009875d65b4c873ad6799a2854f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.UI.PathwayMapPresenter
-  levelNodes:
-  - {fileID: 6964051311935332163}
-  - {fileID: 791938756}
-  - {fileID: 1118820425}
-  - {fileID: 465025570}
-  - {fileID: 513531267}
-  - {fileID: 1042745842}
-  - {fileID: 2027423877}
-  - {fileID: 79163886}
-  - {fileID: 1930349503}
-  - {fileID: 1951348217}
-  totalStarsText: {fileID: 2146979171}
-  totalWorldStarsMax: 30
-  kitchenButton: {fileID: 1728687832}
-  bathroomButton: {fileID: 1362342753}
-  livingRoomButton: {fileID: 791286925}
-  bedroomButton: {fileID: 1956113779}
-  progressRepository: {fileID: 1477960247}
 --- !u!1 &1776519309
 GameObject:
   m_ObjectHideFlags: 0
@@ -26212,7 +26148,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2834895854372765762, guid: e67032a865c83b2418a1c02ef6c60b14, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3178488481218140920, guid: e67032a865c83b2418a1c02ef6c60b14, type: 3}
       propertyPath: m_LocalPosition.x
@@ -28424,7 +28360,7 @@ GameObject:
   - component: {fileID: 2146979172}
   - component: {fileID: 2146979171}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: StarText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -28549,6 +28485,63 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2146979169}
   m_CullTransparentMesh: 1
+--- !u!1001 &3512181783028823720
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 2507011796354445749, guid: 8e4641c1ff414ff46bd18f9879c15e38, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -7.75286
+      objectReference: {fileID: 0}
+    - target: {fileID: 2507011796354445749, guid: 8e4641c1ff414ff46bd18f9879c15e38, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.44057
+      objectReference: {fileID: 0}
+    - target: {fileID: 2507011796354445749, guid: 8e4641c1ff414ff46bd18f9879c15e38, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 2.07474
+      objectReference: {fileID: 0}
+    - target: {fileID: 2507011796354445749, guid: 8e4641c1ff414ff46bd18f9879c15e38, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2507011796354445749, guid: 8e4641c1ff414ff46bd18f9879c15e38, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2507011796354445749, guid: 8e4641c1ff414ff46bd18f9879c15e38, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2507011796354445749, guid: 8e4641c1ff414ff46bd18f9879c15e38, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2507011796354445749, guid: 8e4641c1ff414ff46bd18f9879c15e38, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2507011796354445749, guid: 8e4641c1ff414ff46bd18f9879c15e38, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2507011796354445749, guid: 8e4641c1ff414ff46bd18f9879c15e38, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3450644457183783126, guid: 8e4641c1ff414ff46bd18f9879c15e38, type: 3}
+      propertyPath: m_Name
+      value: SaveManager
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 8e4641c1ff414ff46bd18f9879c15e38, type: 3}
 --- !u!1001 &6964051311935332162
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -28669,5 +28662,4 @@ SceneRoots:
   - {fileID: 1437474307}
   - {fileID: 1612267121}
   - {fileID: 1248693120}
-  - {fileID: 1764617786}
-  - {fileID: 1477960248}
+  - {fileID: 3512181783028823720}
