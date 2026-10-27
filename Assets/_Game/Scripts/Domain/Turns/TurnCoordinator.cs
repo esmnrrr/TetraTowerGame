@@ -1,27 +1,27 @@
 using UnityEngine;
 using System;
 using System.Collections;
-using Game.Presentation.UI;       // HUDPresenter için
-using Game.Application.UseCases;  // PhysicsSettleDetector, CollapseEvaluator için
-using Game.Presentation.Input;    // PiecePlacementController için
+using Game.Presentation.UI;       
+using Game.Application.UseCases;  
+using Game.Presentation.Input;    
 
 namespace Game.Domain.Turns
 {
-    // Oyunun içindeki anlık durumları temsil eden numaralandırma (State Machine)
     public enum TurnState
     {
-        Setup,               // Oyun başlıyor
-        WaitingForSelection, // İNSAN: UI açık, 3 parçadan birini seçmesi bekleniyor
-        PlacingPiece,        // Parça seçildi, yerleştiriliyor (insan fareyle, AI kendi koluyla)
-        Simulating,          // Parça bırakıldı, fizik çalışıyor
-        Evaluating,          // Fizik durdu, çöküş kontrol ediliyor
-        GameOver             // Kule çöktü
+        Setup,              
+        WaitingForSelection, 
+        PlacingPiece,        
+        Simulating,          
+        Evaluating,          
+        GameOver             
     }
 
     public enum GameMode
     {
-        Practice, // Tek kişilik endless mod (sıra hep insanda)
-        VsAI      // Yapay zekaya karşı
+        Practice,    // Solo (Pathway) Mod
+        VsAI,        // Yapay Zekaya Karşı
+        Multiplayer  // Yeni eklendi: Çok Oyunculu
     }
 
     public enum PlayerType
@@ -46,19 +46,17 @@ namespace Game.Domain.Turns
         public PhysicsSettleDetector settleDetector;
         public CollapseEvaluator collapseEvaluator;
 
-        /// <summary>
-        /// AI sırası geldiğinde yayınlanır. TurnCoordinator AI'ı tanımaz; AIBot bu olaya abone olur.
-        /// </summary>
         public event Action OnAITurnRequested;
-
-        // Parçayı en son bırakan oyuncu: kule çökerse kaybeden odur.
         private PlayerType lastPlacer = PlayerType.Human;
 
         private void Start()
         {
-            // Menüden seçilen modu oku
             string savedMode = PlayerPrefs.GetString("SelectedGameMode", "Practice");
-            currentMode = (savedMode == "VsAI") ? GameMode.VsAI : GameMode.Practice;
+            // Enum'u string'den güvenle parse ediyoruz (Multiplayer da eklendiği için)
+            if (Enum.TryParse(savedMode, out GameMode parsedMode))
+                currentMode = parsedMode;
+            else
+                currentMode = GameMode.Practice;
             
             if (settleDetector != null) settleDetector.OnPhysicsSettled += OnPhysicsSettled;
             if (placementController != null) placementController.OnPieceDropped += OnHumanPieceDropped;
@@ -72,7 +70,6 @@ namespace Game.Domain.Turns
             if (placementController != null) placementController.OnPieceDropped -= OnHumanPieceDropped;
         }
 
-        /// <summary>Yeni bir turu başlatır.</summary>
         public void StartTurn()
         {
             if (currentState == TurnState.GameOver) return;
@@ -81,14 +78,13 @@ namespace Game.Domain.Turns
 
             Debug.Log($"--- TUR {currentTurnNumber} BAŞLADI | MOD: {currentMode} | SIRA: {currentPlayer} ---");
 
-            // AI kendi parçasını kendisi yerleştirir, o yüzden doğrudan PlacingPiece'te başlar.
             currentState = isAITurn ? TurnState.PlacingPiece : TurnState.WaitingForSelection;
 
             if (uiPresenter != null)
             {
                 uiPresenter.UpdateRoundText(currentTurnNumber);
-                uiPresenter.ShowPieceSelection();                       // 3 yeni parça üretir
-                uiPresenter.SetHumanInputInteractable(!isAITurn);       // AI sırasında insan kartlara basamaz
+                uiPresenter.ShowPieceSelection();                       
+                uiPresenter.SetHumanInputInteractable(!isAITurn);       
             }
 
             if (isAITurn)
@@ -97,10 +93,8 @@ namespace Game.Domain.Turns
             }
         }
 
-        /// <summary>HUDPresenter'da insan bir kart seçtiğinde çağrılır.</summary>
         public void OnPieceSelectedFromUI()
         {
-            // AI sırasında UI'dan gelen çağrıları yok say
             if (currentMode == GameMode.VsAI && currentPlayer != PlayerType.Human) return;
 
             if (currentState == TurnState.WaitingForSelection)
@@ -110,16 +104,11 @@ namespace Game.Domain.Turns
             }
         }
 
-        /// <summary>İnsanın parça bırakma olayı. Tek giriş noktasına yönlendirir.</summary>
         private void OnHumanPieceDropped()
         {
             BeginSimulation();
         }
 
-        /// <summary>
-        /// İNSAN VE AI AYNI NOKTADAN GEÇER. Parça bırakıldığında çağrılır:
-        /// durumu Simulating yapar ve fizik sakinleşme takibini başlatır.
-        /// </summary>
         public void BeginSimulation()
         {
             if (currentState != TurnState.PlacingPiece) return;
@@ -140,7 +129,7 @@ namespace Game.Domain.Turns
 
                 var levelManager = FindAnyObjectByType<Game.Application.UseCases.LevelManager>();
                 
-                // 1. Durum: Kule Çöktü mü?
+                // 1. DURUM: KULE ÇÖKTÜ MÜ?
                 if (collapseEvaluator != null && collapseEvaluator.HasTowerCollapsed)
                 {
                     currentState = TurnState.GameOver;
@@ -148,21 +137,33 @@ namespace Game.Domain.Turns
                     
                     if (levelManager != null)
                     {
+                        // Pathway modundaysak LevelManager devralır
                         levelManager.EvaluateAndFinishLevel(isTowerCollapsed: true);
                     }
                     else if (uiPresenter != null) 
                     {
-                        uiPresenter.ShowGameOver(currentTurnNumber - 1);
+                        // YENİ SİSTEM: DTO Paketi oluşturup Router'a (HUDPresenter) gönderiyoruz
+                        GameResultData resultData = new GameResultData
+                        {
+                            Mode = currentMode,
+                            ScoreOrTurns = currentTurnNumber - 1,
+                            IsTowerCollapsed = true,
+                            // Eğer kuleyi deviren oyuncu Human ise, kazanan AI'dır (veya tam tersi)
+                            IsWinner = (lastPlacer != PlayerType.Human),
+                            WinnerName = (lastPlacer == PlayerType.Human) ? "Oyuncu 2 / AI" : "Oyuncu 1"
+                        };
+                        
+                        uiPresenter.DisplayGameOver(resultData);
                     }
                 }
                 else
                 {
-                    // 2. Durum: Bölüm Hedefine Ulaşıldı mı? (Örn: Hedef parça sayısı dizildi mi?)
+                    // 2. DURUM: BÖLÜM HEDEFİNE ULAŞILDI MI?
                     if (levelManager != null && levelManager.currentLevelDefinition != null)
                     {
                         if (levelManager.PlacedPieceCount >= levelManager.currentLevelDefinition.targetPieceCount)
                         {
-                            currentState = TurnState.GameOver; // Bölüm başarıyla bitti
+                            currentState = TurnState.GameOver; 
                             Debug.Log("SEVİYE BAŞARIYLA TAMAMLANDI!");
                             levelManager.EvaluateAndFinishLevel(isTowerCollapsed: false);
                             return;
@@ -181,8 +182,7 @@ namespace Game.Domain.Turns
 
             currentTurnNumber++;
 
-            // Sadece VsAI modunda sıra el değiştirir
-            currentPlayer = currentMode == GameMode.VsAI
+            currentPlayer = currentMode == GameMode.VsAI || currentMode == GameMode.Multiplayer
                 ? (currentPlayer == PlayerType.Human ? PlayerType.AI : PlayerType.Human)
                 : PlayerType.Human;
 

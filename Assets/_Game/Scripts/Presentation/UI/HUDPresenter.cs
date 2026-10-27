@@ -6,19 +6,17 @@ using Game.Domain.Pieces;
 using Game.Domain.Turns; // PieceSelectionService'in bulunduğu namespace
 using Game.Presentation.Input; // PiecePlacementController'ın bulunduğu namespace
 using UnityEngine.SceneManagement;
+using Game.Presentation.UI.Panels;
 
 namespace Game.Presentation.UI
 {
     public class HUDPresenter : MonoBehaviour
     {
         [Header("Services & Controllers")]
-        [Tooltip("Üçlü parçaları seçecek servis")]
-        public PieceSelectionService selectionService;
-        
-        [Tooltip("Seçilen parçayı yerleştirecek controller")]
+        public PieceSelectionService selectionService;        
         public PiecePlacementController placementController;
 
-        [Header("UI Elements")]
+        [Header("Selection UI Elements")]
         [Tooltip("Butonların bulunduğu ana panel (Seçim yapıldıktan sonra gizlemek için)")]
         public GameObject selectionPanel;
 
@@ -26,16 +24,16 @@ namespace Game.Presentation.UI
         public Button[] pieceButtons = new Button[3];
 
         [Tooltip("Butonların içindeki parça isimlerini gösterecek text objeleri (Sırayla butonlara karşılık gelsin)")]
-        public TMP_Text[] pieceNameTexts = new TMP_Text[3]; // Klasik Text ise TMP_Text yerine Text kullan
+        public TMP_Text[] pieceNameTexts = new TMP_Text[3]; 
 
         [Tooltip("Butonların içindeki parça ikonlarını gösterecek image objeleri")]
         public Image[] pieceIconImages = new Image[3];
 
-        [Header("Game Over UI")]
-        public GameObject gameOverPanel;
-        public TMP_Text titleText;
-        public TMP_Text scoreText; 
-        public AudioClip gameOverSound;
+        // [Header("Game Over UI")]
+        // public GameObject gameOverPanel;
+        // public TMP_Text titleText;
+        // public TMP_Text scoreText; 
+        // public AudioClip gameOverSound;
 
         [Header("In-Game HUD Elements")]
         public GameObject controlsHint; 
@@ -66,6 +64,14 @@ namespace Game.Presentation.UI
         public GameObject[] resultYellowStars = new GameObject[3]; // Sonuç ekranındaki 3 sarı yıldız
         public Button nextLevelButton;
         public Button mapButton;
+
+        [Header("Game Over Strategy Panels")]
+        [Tooltip("Panellerin üzerindeki ilgili BaseGameOverPanel scriptlerini buraya sürükle")]
+        public PathwayResultPanel pathwayPanel;
+        public VsAIResultPanel vsAIPanel;
+        public MultiplayerResultPanel multiplayerPanel;
+        
+        public AudioClip gameOverSound;
 
         private void Update()
         {
@@ -192,78 +198,118 @@ namespace Game.Presentation.UI
         }
 
         // Game Over ekranını gösteren metod
-        public void ShowGameOver(int survivedTurns)
+        // public void ShowGameOver(int survivedTurns)
+        // {
+        //     if (selectionPanel != null) selectionPanel.SetActive(false);
+        //     if (controlsHint != null) controlsHint.SetActive(false);
+        //     if (roundInfo != null) roundInfo.gameObject.SetActive(false);
+            
+        //     // GAME OVER SESİ
+        //     AudioSource audio = GetComponent<AudioSource>();
+        //     if (audio != null && gameOverSound != null)
+        //     {
+        //         audio.PlayOneShot(gameOverSound);
+        //     }
+
+        //     // Game Over ekranını aç ve metinleri ayarla
+        //     if (gameOverPanel != null)
+        //     {
+        //         gameOverPanel.SetActive(true);
+        //         if (titleText != null) titleText.text = "TOWER COLLAPSE!";
+        //         if (scoreText != null) scoreText.text = $"SCORE: {survivedTurns}";
+        //     }
+        // }
+
+        // AI / VS Modu için Game Over
+        // public void ShowVersusGameOver(bool humanWon, int turns)
+        // {
+        //     if (selectionPanel != null) selectionPanel.SetActive(false);
+        //     if (controlsHint != null) controlsHint.SetActive(false);
+        //     if (roundInfo != null) roundInfo.gameObject.SetActive(false);
+
+        //     AudioSource audio = GetComponent<AudioSource>();
+        //     if (audio != null && gameOverSound != null)
+        //     {
+        //         audio.PlayOneShot(gameOverSound);
+        //     }
+
+        //     if (gameOverPanel != null)
+        //     {
+        //         gameOverPanel.SetActive(true);
+
+        //         if (humanWon)
+        //         {
+        //             if (titleText != null)
+        //             {
+        //                 titleText.text = "WIN!";
+        //                 // Yeşil Renk (#2ECC71)
+        //                 titleText.color = new Color32(46, 204, 113, 255); 
+        //             }
+
+        //             if (scoreText != null)
+        //             {
+        //                 scoreText.text = $"Score: {turns}!";
+        //             }
+        //         }
+        //         else
+        //         {
+        //             if (titleText != null)
+        //             {
+        //                 titleText.text = "LOSE!";
+        //                 // Kırmızı Renk (#E74C3C)
+        //                 titleText.color = new Color32(231, 76, 60, 255); 
+        //             }
+
+        //             if (scoreText != null)
+        //             {
+        //                 scoreText.text = $"Score: {turns}!";
+        //             }
+        //         }
+        //     }
+        // }
+
+        /// <summary>
+        /// Oyun bittiğinde TurnCoordinator'dan gelen paketi alır ve doğru paneli açar.
+        /// </summary>
+        public void DisplayGameOver(GameResultData resultData)
         {
+            // 1. Ortak oyun içi arayüzleri gizle
             if (selectionPanel != null) selectionPanel.SetActive(false);
             if (controlsHint != null) controlsHint.SetActive(false);
             if (roundInfo != null) roundInfo.gameObject.SetActive(false);
-            
-            // GAME OVER SESİ
+
+            // 2. Ses efekti
             AudioSource audio = GetComponent<AudioSource>();
             if (audio != null && gameOverSound != null)
             {
                 audio.PlayOneShot(gameOverSound);
             }
 
-            // Game Over ekranını aç ve metinleri ayarla
-            if (gameOverPanel != null)
+            // 3. Olası tüm panelleri kapat (Güvenlik temizliği)
+            if (pathwayPanel != null) pathwayPanel.HidePanel();
+            if (vsAIPanel != null) vsAIPanel.HidePanel();
+            if (multiplayerPanel != null) multiplayerPanel.HidePanel();
+
+            // 4. STRATEJİ YÖNLENDİRMESİ: Oyun moduna göre ilgili panelin ShowResult metodunu tetikle
+            switch (resultData.Mode)
             {
-                gameOverPanel.SetActive(true);
-                if (titleText != null) titleText.text = "TOWER COLLAPSE!";
-                if (scoreText != null) scoreText.text = $"SCORE: {survivedTurns}";
+                case GameMode.Practice: // Practice (Pathway) Modu
+                    if (pathwayPanel != null) pathwayPanel.ShowResult(resultData);
+                    break;
+
+                case GameMode.VsAI:
+                    if (vsAIPanel != null) vsAIPanel.ShowResult(resultData);
+                    break;
+
+                case GameMode.Multiplayer: // Enum'una Multiplayer eklediğini varsayıyorum
+                    if (multiplayerPanel != null) multiplayerPanel.ShowResult(resultData);
+                    break;
             }
         }
 
-        // AI / VS Modu için Game Over
-        public void ShowVersusGameOver(bool humanWon, int turns)
-        {
-            if (selectionPanel != null) selectionPanel.SetActive(false);
-            if (controlsHint != null) controlsHint.SetActive(false);
-            if (roundInfo != null) roundInfo.gameObject.SetActive(false);
-
-            AudioSource audio = GetComponent<AudioSource>();
-            if (audio != null && gameOverSound != null)
-            {
-                audio.PlayOneShot(gameOverSound);
-            }
-
-            if (gameOverPanel != null)
-            {
-                gameOverPanel.SetActive(true);
-
-                if (humanWon)
-                {
-                    if (titleText != null)
-                    {
-                        titleText.text = "WIN!";
-                        // Yeşil Renk (#2ECC71)
-                        titleText.color = new Color32(46, 204, 113, 255); 
-                    }
-
-                    if (scoreText != null)
-                    {
-                        scoreText.text = $"Score: {turns}!";
-                    }
-                }
-                else
-                {
-                    if (titleText != null)
-                    {
-                        titleText.text = "LOSE!";
-                        // Kırmızı Renk (#E74C3C)
-                        titleText.color = new Color32(231, 76, 60, 255); 
-                    }
-
-                    if (scoreText != null)
-                    {
-                        scoreText.text = $"Score: {turns}!";
-                    }
-                }
-            }
-}
-
         public void RestartGame()
         {
+            Time.timeScale = 1f;
             SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
 
@@ -360,7 +406,7 @@ namespace Game.Presentation.UI
         public void ReturnToMap()
         {
             Time.timeScale = 1f;
-            UnityEngine.SceneManagement.SceneManager.LoadScene("MainMenu"); // Ana menü / Pathway sahnenin adı
+            SceneManager.LoadScene("MainMenu");
         }
 
         public void LoadNextLevel(int nextLevelIndex)
@@ -368,7 +414,7 @@ namespace Game.Presentation.UI
             Time.timeScale = 1f;
             PlayerPrefs.SetInt("SelectedLevelIndex", nextLevelIndex);
             PlayerPrefs.Save();
-            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex);
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
         }
     }
 }
