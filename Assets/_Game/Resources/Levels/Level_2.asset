@@ -12,20 +12,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d72633094394024da69256a5c77af87, type: 3}
   m_Name: Level_2
   m_EditorClassIdentifier: Assembly-CSharp::Game.Domain.Progression.LevelDefinition
-  levelID: level_world1_01
+  levelID: level_kitchen_02
   worldID: world_1_classic
   levelIndex: 2
-  displayName: "B\xF6l\xFCm 1 - \u0130lk Denge"
+  displayName: "B\xF6l\xFCm 1 - Denge Yolu"
   boardPrefab: {fileID: 2834895854372765762, guid: e67032a865c83b2418a1c02ef6c60b14, type: 3}
   piecePool:
   - {fileID: 11400000, guid: 7e080f27c88fcc94ca8bd7540997ef33, type: 2}
   - {fileID: 11400000, guid: 2efd130c44b3a554fa992aecf0fd045b, type: 2}
   - {fileID: 11400000, guid: a278fe336e1b80342a4c575d444d9110, type: 2}
   - {fileID: 11400000, guid: 1096df161ab19024587f2e24fe74f171, type: 2}
-  - {fileID: 11400000, guid: 340e8e91424bf844abf00b0ae0fffbe8, type: 2}
   goalType: 0
-  targetPieceCount: 10
+  targetPieceCount: 5
   targetHeight: 5
-  star1TargetCount: 10
+  star1TargetCount: 5
   maxAllowedDropsForStar2: 1
   maxAllowedDropsForStar3: 0
