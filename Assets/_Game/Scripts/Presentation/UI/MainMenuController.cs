@@ -21,11 +21,23 @@ namespace Game.Presentation.UI
 
         private void Start()
         {
-            // Oyun başladığında sadece Ana Kart açık olsun, diğer tüm kartlar kapalı başlasın
-            if (mainCard != null) mainCard.SetActive(true);
-            if (modeSelectionCard != null) modeSelectionCard.SetActive(false);
-            if (settingsCard != null) settingsCard.SetActive(false);
-            if (pathwayCard != null) pathwayCard.SetActive(false);
+            // Oyun sahnesinden (Back butonuyla) dönülüp dönülmediğini kontrol et
+            if (PlayerPrefs.GetInt("OpenPathwayOnMenu", 0) == 1)
+            {
+                // Bayrağı temizle ki tekrar girişlerde normal başlasın
+                PlayerPrefs.DeleteKey("OpenPathwayOnMenu");
+
+                // Doğrudan Pathway (Harita) kartını ve verilerini aç
+                SelectPracticeMode();
+            }
+            else
+            {
+                // Normal açılış düzeni
+                if (mainCard != null) mainCard.SetActive(true);
+                if (modeSelectionCard != null) modeSelectionCard.SetActive(false);
+                if (settingsCard != null) settingsCard.SetActive(false);
+                if (pathwayCard != null) pathwayCard.SetActive(false);
+            }
         }
 
         // --- Panel Geçişleri ---
