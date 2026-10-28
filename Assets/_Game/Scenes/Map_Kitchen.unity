@@ -2383,6 +2383,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 366420992}
   m_LocalEulerAnglesHint: {x: 2.805, y: -75.984, z: 10.977}
+--- !u!1 &188382905
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 188382907}
+  - component: {fileID: 188382906}
+  m_Layer: 0
+  m_Name: WindZone
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &188382906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 188382905}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1f2cdd4f6f2d7a844a5246dad47d9f40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Application.UseCases.WindForceController
+  windForce: {x: 3, y: 0, z: 0}
+  windGustInterval: 5
+--- !u!4 &188382907
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 188382905}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -6.7, y: 1.2233481, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &212636241
 GameObject:
   m_ObjectHideFlags: 0
@@ -2415,7 +2461,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22bb3ae95972f8c4d856c4520369abb3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Application.UseCases.CollapseEvaluator
-  allowedDrops: 1
+  practiceAllowedDrops: 2
 --- !u!65 &212636243
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -24362,3 +24408,4 @@ SceneRoots:
   - {fileID: 69575784}
   - {fileID: 212636246}
   - {fileID: 264969636}
+  - {fileID: 188382907}
