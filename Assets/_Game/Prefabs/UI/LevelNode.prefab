@@ -580,6 +580,7 @@ MonoBehaviour:
   nodeButton: {fileID: 5308908150554339095}
   levelNumberText: {fileID: 1266405370227210552}
   lockIcon: {fileID: 3615248407036041619}
+  starsContainer: {fileID: 4343703651473929990}
   yellowStars:
   - {fileID: 2062713003564680746}
   - {fileID: 722618801184961542}

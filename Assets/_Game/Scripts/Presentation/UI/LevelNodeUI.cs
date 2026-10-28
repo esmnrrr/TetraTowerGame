@@ -12,9 +12,12 @@ namespace Game.Presentation.UI
         [SerializeField] private Button nodeButton;
         [SerializeField] private TMP_Text levelNumberText;
         [SerializeField] private GameObject lockIcon;
+        
+        [Tooltip("Kilitli seviyelerde boş yıldızları tamamen gizlemek için ana kapsayıcı")]
+        [SerializeField] private GameObject starsContainer; 
 
-        [Header("Stars (Empty vs Yellow)")]
-        [Tooltip("Boş yıldızların üzerine koyduğun 3 adet Sarı Yıldız (Image) objesi")]
+        [Header("Stars (Yellow Overlays)")]
+        [Tooltip("Star1, Star2, Star3 objelerinin içinde duran 3 adet YellowStar objesi")]
         [SerializeField] private GameObject[] yellowStars = new GameObject[3];
 
         [Header("Juice / Pop Settings")]
@@ -37,51 +40,56 @@ namespace Game.Presentation.UI
             levelIndex = index;
             onClickCallback = callback;
 
-            // 1. KİLİT VE SAYI MANTIĞI
+            StopAllCoroutines();
+
             if (isUnlocked)
             {
-                // Bölüm AÇIKsa: Kilidi kapat, Numarayı göster, Butonu tıklanabilir yap
+                // --- 1. BÖLÜM AÇIKSA ---
                 if (lockIcon != null) lockIcon.SetActive(false);
+                
                 if (levelNumberText != null)
                 {
                     levelNumberText.gameObject.SetActive(true);
                     levelNumberText.text = index.ToString();
                 }
-                nodeButton.interactable = true;
-            }
-            else
-            {
-                // Bölüm KİLİTLİyse: Kilidi aç, Numarayı gizle, Butonu kapat
-                if (lockIcon != null) lockIcon.SetActive(true);
-                if (levelNumberText != null) levelNumberText.gameObject.SetActive(false);
-                nodeButton.interactable = false;
-            }
 
-            // 2. YILDIZ MANTIĞI
-            StopAllCoroutines();
-            for (int i = 0; i < yellowStars.Length; i++)
-            {
-                if (yellowStars[i] == null) continue;
+                if (nodeButton != null) nodeButton.interactable = true;
 
-                bool shouldShowYellow = isUnlocked && (i < starsEarned);
+                // Boş yıldız zeminlerini (Star1, Star2, Star3) görünür yap
+                if (starsContainer != null) starsContainer.SetActive(true);
 
-                if (shouldShowYellow)
+                // Kazanılan yıldız sayısına göre sarı katmanları aç/kapat
+                for (int i = 0; i < yellowStars.Length; i++)
                 {
-                    yellowStars[i].SetActive(true);
-                    if (animateStarsOnLoad)
+                    if (yellowStars[i] == null) continue;
+
+                    bool shouldShowYellow = (i < starsEarned);
+                    yellowStars[i].SetActive(shouldShowYellow);
+
+                    if (shouldShowYellow && animateStarsOnLoad)
                     {
                         StartCoroutine(AnimateStarPop(yellowStars[i].transform, i * 0.15f));
                     }
                 }
-                else
+            }
+            else
+            {
+                // --- 2. BÖLÜM KİLİTLİYSE ---
+                if (lockIcon != null) lockIcon.SetActive(true);
+                if (levelNumberText != null) levelNumberText.gameObject.SetActive(false);
+                if (nodeButton != null) nodeButton.interactable = false;
+
+                // Yıldız alanını tamamen kapat (Boş yıldızlar dahil hiçbir şey görünmez)
+                if (starsContainer != null) starsContainer.SetActive(false);
+
+                // Tüm sarı yıldızları kapat
+                for (int i = 0; i < yellowStars.Length; i++)
                 {
-                    // Kazanılmayan veya kilitli olan yıldızların sarısı KAPALI kalır (Alttaki boş yıldız görünür)
-                    yellowStars[i].SetActive(false);
+                    if (yellowStars[i] != null) yellowStars[i].SetActive(false);
                 }
             }
         }
 
-        // Yıldızların pat diye esneyerek açılması için minik Juice efekti
         private IEnumerator AnimateStarPop(Transform starTransform, float delay)
         {
             starTransform.localScale = Vector3.zero;
@@ -92,7 +100,6 @@ namespace Game.Presentation.UI
             {
                 timer += Time.deltaTime;
                 float progress = timer / 0.25f;
-                // Büyüyüp hafif esneme hareketi (Pop)
                 float scale = Mathf.Sin(progress * Mathf.PI * 0.75f) * 1.2f;
                 starTransform.localScale = new Vector3(scale, scale, 1f);
                 yield return null;
