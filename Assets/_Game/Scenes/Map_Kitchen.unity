@@ -924,6 +924,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1792230660}
     - target: {fileID: 6552206959219020946, guid: d16220ae1b0c6324d904d862b365bbf0, type: 3}
+      propertyPath: vsAIPanel
+      value: 
+      objectReference: {fileID: 928532963}
+    - target: {fileID: 6552206959219020946, guid: d16220ae1b0c6324d904d862b365bbf0, type: 3}
       propertyPath: roundJuice
       value: 
       objectReference: {fileID: 1174720565}
@@ -931,6 +935,10 @@ PrefabInstance:
       propertyPath: controlsHint
       value: 
       objectReference: {fileID: 719671401}
+    - target: {fileID: 6552206959219020946, guid: d16220ae1b0c6324d904d862b365bbf0, type: 3}
+      propertyPath: pathwayPanel
+      value: 
+      objectReference: {fileID: 1160014905}
     - target: {fileID: 6552206959219020946, guid: d16220ae1b0c6324d904d862b365bbf0, type: 3}
       propertyPath: gameOverPanel
       value: 
@@ -955,6 +963,10 @@ PrefabInstance:
       propertyPath: selectionPanel
       value: 
       objectReference: {fileID: 1952021230}
+    - target: {fileID: 6552206959219020946, guid: d16220ae1b0c6324d904d862b365bbf0, type: 3}
+      propertyPath: multiplayerPanel
+      value: 
+      objectReference: {fileID: 445670397}
     - target: {fileID: 6552206959219020946, guid: d16220ae1b0c6324d904d862b365bbf0, type: 3}
       propertyPath: selectionService
       value: 
@@ -10297,7 +10309,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9209346156717909105, guid: 51ef3d204b7fb8a49b051176793075db, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects:
@@ -10857,9 +10869,9 @@ RectTransform:
   - {fileID: 1271704853}
   m_Father: {fileID: 1160014894}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 499.99997, y: -640}
   m_SizeDelta: {x: 800, y: 120}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &882560121
@@ -15243,9 +15255,9 @@ RectTransform:
   - {fileID: 512439793}
   m_Father: {fileID: 882560120}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 560, y: -120}
   m_SizeDelta: {x: 300, y: 120}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1271704854
@@ -18694,6 +18706,10 @@ PrefabInstance:
       propertyPath: progressRepository
       value: 
       objectReference: {fileID: 1069371194}
+    - target: {fileID: 3329754707531012036, guid: a0d70f681c694774f90fc84a2af0bc2c, type: 3}
+      propertyPath: currentLevelDefinition
+      value: 
+      objectReference: {fileID: 11400000, guid: 45c1e6fafc0c7204d9c89631d8346d57, type: 2}
     - target: {fileID: 6183107341431302835, guid: a0d70f681c694774f90fc84a2af0bc2c, type: 3}
       propertyPath: m_Name
       value: LevelManager
@@ -22171,9 +22187,9 @@ RectTransform:
   - {fileID: 366614741}
   m_Father: {fileID: 882560120}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 240, y: -120}
   m_SizeDelta: {x: 300, y: 120}
   m_Pivot: {x: 0.5, y: 0}
 --- !u!114 &1937326943

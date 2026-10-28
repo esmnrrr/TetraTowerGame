@@ -21,7 +21,7 @@ namespace Game.Domain.Turns
     {
         Practice,    // Solo (Pathway) Mod
         VsAI,        // Yapay Zekaya Karşı
-        Multiplayer  // Yeni eklendi: Çok Oyunculu
+        Multiplayer  // Çok Oyunculu
     }
 
     public enum PlayerType
@@ -128,45 +128,51 @@ namespace Game.Domain.Turns
                 Debug.Log("Durum: Fizik durdu. Çöküş ve Seviye kontrolü yapılıyor...");
 
                 var levelManager = FindAnyObjectByType<Game.Application.UseCases.LevelManager>();
-                
+
                 // 1. DURUM: KULE ÇÖKTÜ MÜ?
                 if (collapseEvaluator != null && collapseEvaluator.HasTowerCollapsed)
                 {
                     currentState = TurnState.GameOver;
                     Debug.Log("OYUN BİTTİ! Kule yıkıldı.");
-                    
-                    if (levelManager != null)
+
+                    if (currentMode == GameMode.Practice && levelManager != null)
                     {
-                        // Pathway modundaysak LevelManager devralır
                         levelManager.EvaluateAndFinishLevel(isTowerCollapsed: true);
                     }
                     else if (uiPresenter != null) 
                     {
-                        // YENİ SİSTEM: DTO Paketi oluşturup Router'a (HUDPresenter) gönderiyoruz
                         GameResultData resultData = new GameResultData
                         {
                             Mode = currentMode,
                             ScoreOrTurns = currentTurnNumber - 1,
                             IsTowerCollapsed = true,
-                            // Eğer kuleyi deviren oyuncu Human ise, kazanan AI'dır (veya tam tersi)
                             IsWinner = (lastPlacer != PlayerType.Human),
                             WinnerName = (lastPlacer == PlayerType.Human) ? "Oyuncu 2 / AI" : "Oyuncu 1"
                         };
-                        
+
                         uiPresenter.DisplayGameOver(resultData);
                     }
                 }
                 else
                 {
-                    // 2. DURUM: BÖLÜM HEDEFİNE ULAŞILDI MI?
-                    if (levelManager != null && levelManager.currentLevelDefinition != null)
+                    // 2. DURUM: KULE SAĞLAM - SAYACI ARTIR VE KONTROL ET
+                    if (levelManager != null)
                     {
-                        if (levelManager.PlacedPieceCount >= levelManager.currentLevelDefinition.targetPieceCount)
+                        levelManager.RegisterPiecePlaced();
+                        
+                        // Güncel sayıyı doğrudan LevelManager'dan okuyoruz
+                        int currentCount = levelManager.PlacedPieceCount;
+                        int targetCount = levelManager.currentLevelDefinition != null ? levelManager.currentLevelDefinition.targetPieceCount : 1;
+
+                        Debug.Log($"[TurnCoordinator] Güncel Parça Sayısı: {currentCount} / {targetCount}");
+
+                        // HEDEF TAMAMLANDI MI? (Örn: 1 >= 1)
+                        if (currentCount >= targetCount)
                         {
                             currentState = TurnState.GameOver; 
                             Debug.Log("SEVİYE BAŞARIYLA TAMAMLANDI!");
                             levelManager.EvaluateAndFinishLevel(isTowerCollapsed: false);
-                            return;
+                            return; // Tur 2'ye geçmesini engeller
                         }
                     }
 

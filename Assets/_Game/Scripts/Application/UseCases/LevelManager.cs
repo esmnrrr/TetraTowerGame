@@ -2,6 +2,7 @@ using UnityEngine;
 using Game.Domain.Progression;
 using Game.Infrastructure.Save;
 using Game.Presentation.UI;
+using Game.Domain.Turns;
 
 namespace Game.Application.UseCases
 {
@@ -17,16 +18,19 @@ namespace Game.Application.UseCases
         private int placedPieceCount = 0;
         private int droppedPieceCount = 0;
 
+        // Dışarıdan okunduğunda doğrudan private değişkeni döndürmeli
         public int PlacedPieceCount => placedPieceCount;
         public int DroppedPieceCount => droppedPieceCount;
 
         private void Start()
         {
-            // 1. Oyuncunun haritadan hangi seviyeyi seçtiğini öğren
             int selectedLevelIndex = PlayerPrefs.GetInt("SelectedLevelIndex", 1);
             
-            // 2. O seviyenin veri dosyasını (ScriptableObject) Resources klasöründen yükle
             currentLevelDefinition = Resources.Load<LevelDefinition>($"Levels/Level_{selectedLevelIndex}");
+            if (currentLevelDefinition == null)
+            {
+                currentLevelDefinition = Resources.Load<LevelDefinition>($"Levels/Level_{selectedLevelIndex:D2}");
+            }
 
             if (currentLevelDefinition != null)
             {
@@ -41,6 +45,7 @@ namespace Game.Application.UseCases
         public void RegisterPiecePlaced()
         {
             placedPieceCount++;
+            Debug.Log($"[LevelManager] Parça sayısı başarıyla artırıldı! Yeni Sayı: {placedPieceCount}");
         }
 
         public void RegisterPieceDropped()
@@ -48,31 +53,30 @@ namespace Game.Application.UseCases
             droppedPieceCount++;
         }
 
-        /// <summary>
-        /// Seviye bittiğinde (hedef tamamlandığında veya kule durduğunda) çalışır.
-        /// </summary>
         public void EvaluateAndFinishLevel(bool isTowerCollapsed)
         {
-            if (currentLevelDefinition == null)
-            {
-                Debug.LogWarning("LevelDefinition atanmamış! Varsayılan mantık çalışıyor.");
-                return;
-            }
+            if (currentLevelDefinition == null) return;
 
-            // 1. Yıldızları Hesapla
             int starsEarned = 0;
             if (!isTowerCollapsed)
             {
                 starsEarned = StarEvaluator.EvaluateStars(currentLevelDefinition, placedPieceCount, droppedPieceCount);
             }
 
-            // 2. İlerlemeyi Hafızaya Kaydet
             SaveLevelProgress(currentLevelDefinition.levelIndex, starsEarned);
 
-            // 3. UI'da Sonuç Ekranını Göster
             if (hudPresenter != null)
             {
-                hudPresenter.ShowLevelResults(currentLevelDefinition.levelIndex, starsEarned, isTowerCollapsed);
+                GameResultData resultData = new GameResultData
+                {
+                    Mode = GameMode.Practice,
+                    LevelIndex = currentLevelDefinition.levelIndex,
+                    StarsEarned = starsEarned,
+                    IsTowerCollapsed = isTowerCollapsed,
+                    ScoreOrTurns = placedPieceCount
+                };
+
+                hudPresenter.DisplayGameOver(resultData);
             }
         }
 
@@ -86,23 +90,17 @@ namespace Game.Application.UseCases
             string currentLevelID = $"level_kitchen_{levelIndex:D2}";
             string nextLevelID = $"level_kitchen_{(levelIndex + 1):D2}";
 
-            // Mevcut seviyenin verisini güncelle veya ekle
             var currentResult = progress.levelResults.Find(r => r.levelID == currentLevelID);
             if (currentResult == null)
             {
                 currentResult = new LevelResultData { levelID = currentLevelID, starsEarned = starsEarned, isUnlocked = true };
                 progress.levelResults.Add(currentResult);
             }
-            else
+            else if (starsEarned > currentResult.starsEarned)
             {
-                // Daha yüksek yıldız aldıysa güncelle
-                if (starsEarned > currentResult.starsEarned)
-                {
-                    currentResult.starsEarned = starsEarned;
-                }
+                currentResult.starsEarned = starsEarned;
             }
 
-            // En az 1 yıldız kazandıysa BİR SONRAKİ SEVİYENİN KİLİDİNİ AÇ!
             if (starsEarned > 0)
             {
                 var nextResult = progress.levelResults.Find(r => r.levelID == nextLevelID);
@@ -116,7 +114,6 @@ namespace Game.Application.UseCases
                 }
             }
 
-            // Kaydet
             progressRepository.SaveProgress(progress);
         }
     }
