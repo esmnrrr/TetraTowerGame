@@ -17905,6 +17905,10 @@ PrefabInstance:
       propertyPath: currentLevelDefinition
       value: 
       objectReference: {fileID: 11400000, guid: 45c1e6fafc0c7204d9c89631d8346d57, type: 2}
+    - target: {fileID: 3329754707531012036, guid: a0d70f681c694774f90fc84a2af0bc2c, type: 3}
+      propertyPath: defaultMultiplayerBoardPrefab
+      value: 
+      objectReference: {fileID: 2834895854372765762, guid: e67032a865c83b2418a1c02ef6c60b14, type: 3}
     - target: {fileID: 6183107341431302835, guid: a0d70f681c694774f90fc84a2af0bc2c, type: 3}
       propertyPath: m_Name
       value: LevelManager
