@@ -23,6 +23,7 @@ namespace Game.Domain.Progression
         [Header("Board & Rules")]
         [Tooltip("Bu seviyede sahneye yüklenecek Denge Tahtası prefab'ı veya tanımı")]
         public GameObject boardPrefab;
+        public GameObject environmentEffectPrefab;
         
         [Tooltip("Bu seviyede çıkabilecek parça havuzu")]
         public List<PieceDefinition> piecePool;

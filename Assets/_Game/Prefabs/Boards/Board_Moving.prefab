@@ -394,9 +394,6 @@ PrefabInstance:
       addedObject: {fileID: 921371848791532245}
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1573be9d2e0e9184e884a666574c709f, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 8732655219059392758}
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 1573be9d2e0e9184e884a666574c709f, type: 3}
-      insertIndex: -1
       addedObject: {fileID: 1500888469804941371}
   m_SourcePrefab: {fileID: 100100000, guid: 1573be9d2e0e9184e884a666574c709f, type: 3}
 --- !u!1 &2834895854372765762 stripped
@@ -448,50 +445,11 @@ Rigidbody:
     m_Bits: 0
   m_ImplicitCom: 0
   m_ImplicitTensor: 1
-  m_UseGravity: 1
-  m_IsKinematic: 0
+  m_UseGravity: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!59 &8732655219059392758
-HingeJoint:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2834895854372765762}
-  serializedVersion: 3
-  m_ConnectedBody: {fileID: 0}
-  m_ConnectedArticulationBody: {fileID: 0}
-  m_Anchor: {x: 0, y: 0, z: 0}
-  m_Axis: {x: 0, y: 0, z: 1}
-  m_AutoConfigureConnectedAnchor: 0
-  m_ConnectedAnchor: {x: -6.7, y: 1.223348, z: 0}
-  m_UseSpring: 0
-  m_Spring:
-    spring: 0
-    damper: 0
-    targetPosition: 0
-  m_UseMotor: 0
-  m_Motor:
-    targetVelocity: 0
-    force: 0
-    freeSpin: 0
-  m_UseLimits: 1
-  m_ExtendedLimits: 0
-  m_UseAcceleration: 0
-  m_Limits:
-    min: -35
-    max: 35
-    bounciness: 0
-    bounceMinVelocity: 0.2
-    contactDistance: 0
-  m_BreakForce: Infinity
-  m_BreakTorque: Infinity
-  m_EnableCollision: 0
-  m_EnablePreprocessing: 1
-  m_MassScale: 1
-  m_ConnectedMassScale: 1
 --- !u!114 &1500888469804941371
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -504,8 +462,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 629eb3cb20dd97242b4677daa7b0b089, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Application.UseCases.MovingBoardBehaviour
-  moveDistance: 2
-  moveSpeed: 1.5
+  moveDistance: 0.001
+  moveSpeed: 0.001
 --- !u!4 &3178488481218140920 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 1573be9d2e0e9184e884a666574c709f, type: 3}
