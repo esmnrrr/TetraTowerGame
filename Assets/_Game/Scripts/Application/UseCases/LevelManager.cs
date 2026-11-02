@@ -24,6 +24,14 @@ namespace Game.Application.UseCases
 
         private void Start()
         {
+            string savedMode = PlayerPrefs.GetString("SelectedGameMode", "Practice");
+
+            if (savedMode == "Multiplayer")
+            {
+                Debug.Log("Multiplayer modu seçildi. Pathway seviyeleri devre dışı, standart tahta yükleniyor.");
+                return; 
+            }
+
             int selectedLevelIndex = PlayerPrefs.GetInt("SelectedLevelIndex", 1);
             
             currentLevelDefinition = Resources.Load<LevelDefinition>($"Levels/Level_{selectedLevelIndex}");

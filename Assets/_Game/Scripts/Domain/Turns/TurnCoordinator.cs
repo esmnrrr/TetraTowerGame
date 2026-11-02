@@ -188,9 +188,13 @@ namespace Game.Domain.Turns
 
             currentTurnNumber++;
 
-            currentPlayer = currentMode == GameMode.VsAI || currentMode == GameMode.Multiplayer
-                ? (currentPlayer == PlayerType.Human ? PlayerType.AI : PlayerType.Human)
+            // Multiplayer mantığını şimdilik devre dışı bırakıyoruz (Network kodları gelene kadar)
+            currentPlayer = currentMode == GameMode.VsAI 
+                ? (currentPlayer == PlayerType.Human ? PlayerType.AI : PlayerType.Human) 
                 : PlayerType.Human;
+            // currentPlayer = currentMode == GameMode.VsAI || currentMode == GameMode.Multiplayer
+            //     ? (currentPlayer == PlayerType.Human ? PlayerType.AI : PlayerType.Human)
+            //     : PlayerType.Human;
 
             StartTurn();
         }
