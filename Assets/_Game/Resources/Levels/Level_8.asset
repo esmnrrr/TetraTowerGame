@@ -16,7 +16,7 @@ MonoBehaviour:
   worldID: world_1_classic
   levelIndex: 8
   displayName: "B\xF6l\xFCm 1 - Kenetleme"
-  boardPrefab: {fileID: 2834895854372765762, guid: e67032a865c83b2418a1c02ef6c60b14, type: 3}
+  boardPrefab: {fileID: 2834895854372765762, guid: df5ed49400d4ff54e8d41e969609a4c1, type: 3}
   piecePool:
   - {fileID: 11400000, guid: 7e080f27c88fcc94ca8bd7540997ef33, type: 2}
   - {fileID: 11400000, guid: 2efd130c44b3a554fa992aecf0fd045b, type: 2}

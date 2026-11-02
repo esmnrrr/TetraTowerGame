@@ -35,6 +35,22 @@ namespace Game.Application.UseCases
             if (currentLevelDefinition != null)
             {
                 Debug.Log($"Şu an Seviye {selectedLevelIndex} oynanıyor. Hedef: {currentLevelDefinition.targetPieceCount} parça");
+
+                // 1. Denge Tahtasını (Platform) Sahneye Yükle
+                if (currentLevelDefinition.boardPrefab != null)
+                {
+                    Instantiate(currentLevelDefinition.boardPrefab, Vector3.zero, Quaternion.identity);
+                }
+                else
+                {
+                    Debug.LogWarning("LevelManager: Bu seviye için boardPrefab atanmamış!");
+                }
+
+                // 2. Varsa Çevre Etkisini (Rüzgar / Moving Board) Sahneye Yükle
+                if (currentLevelDefinition.environmentEffectPrefab != null)
+                {
+                    Instantiate(currentLevelDefinition.environmentEffectPrefab);
+                }
             }
             else
             {
