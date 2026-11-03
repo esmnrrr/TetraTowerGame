@@ -1,6 +1,8 @@
 using UnityEngine;
-using Game.Domain.Pieces; // PieceDefinition için (Eğer farklı bir namespace kullandıysan burayı güncelle)
+using Game.Domain.Pieces; // PieceDefinition için
 using Game.Application.Factories;
+using Unity.Netcode; // Multiplayer için
+using Game.Domain.Turns; // TurnCoordinator için
 
 namespace Game.Presentation.Input
 {
@@ -139,6 +141,7 @@ namespace Game.Presentation.Input
             // Hem sol tık (Mouse 0) hem de BOŞLUK (Space) tuşu ile test edelim
             if (UnityEngine.Input.GetMouseButtonDown(0) || UnityEngine.Input.GetKeyDown(KeyCode.Space))
             {
+                // 1. Çakışma Kontrolü (Aynen Korundu)
                 if (!IsPlacementValid())
                 {
                     Debug.LogWarning("DİKKAT: Parça başka bir objenin içinde! Buraya bırakılamaz.");
@@ -169,15 +172,46 @@ namespace Game.Presentation.Input
                 ghostPiece = null;
 
                 Debug.Log("---> 3. ADIM: Factory'den gerçek parça isteniyor...");
-                
-                GameObject realObj = pieceFactory.CreateRealPiece(currentPieceDef, finalPosition, finalRotation);
-                if (realObj == null)
+
+                // --- MULTIPLAYER VE TEK OYUNCULU MOD YÖNLENDİRMESİ ---
+                if (Unity.Netcode.NetworkManager.Singleton != null && Unity.Netcode.NetworkManager.Singleton.IsListening)
                 {
-                    Debug.LogError("---> HATA: Factory gerçek objeyi üretemedi!");
+                    if (Unity.Netcode.NetworkManager.Singleton.IsServer)
+                    {
+                        // HOST / SERVER: Doğrudan kendi sunucusunda üretir
+                        GameObject realObj = pieceFactory.CreateRealPiece(currentPieceDef, finalPosition, finalRotation);
+                        if (realObj == null) 
+                            Debug.LogError("---> HATA: Factory gerçek objeyi üretemedi!");
+                        else 
+                            Debug.Log("---> 4. ADIM: Gerçek obje sunucuda başarıyla üretildi!");
+                    }
+                    else
+                    {
+                        // CLIENT: Kendisi ağa obje doğuramaz; Sunucudan doğurmasını ister (ServerRpc)
+                        var coordinator = FindAnyObjectByType<Game.Domain.Turns.TurnCoordinator>();
+                        if (coordinator != null)
+                        {
+                            coordinator.RequestSpawnPieceServerRpc(currentPieceDef.name, finalPosition, finalRotation);
+                            Debug.Log("---> 4. ADIM: Client sunucuya parça doğurma isteği gönderdi (ServerRpc)!");
+                        }
+                        else
+                        {
+                            Debug.LogError("---> HATA: Sahne içinde TurnCoordinator bulunamadı!");
+                        }
+                    }
                 }
                 else
                 {
-                    Debug.Log("---> 4. ADIM: Gerçek obje başarıyla üretildi!");
+                    // Practice / Solo / VsAI Modları
+                    GameObject realObj = pieceFactory.CreateRealPiece(currentPieceDef, finalPosition, finalRotation);
+                    if (realObj == null)
+                    {
+                        Debug.LogError("---> HATA: Factory gerçek objeyi üretemedi!");
+                    }
+                    else
+                    {
+                        Debug.Log("---> 4. ADIM: Gerçek obje başarıyla üretildi!");
+                    }
                 }
 
                 // Orkestra şefine haber ver
@@ -185,7 +219,7 @@ namespace Game.Presentation.Input
 
                 // Elimizdeki tanımı boşaltalım ki tekrar hayalet üretmesin
                 currentPieceDef = null; 
-                
+
                 Debug.Log("---> İŞLEM TAMAM: Farenin ucu boşaldı!");
             }
         }

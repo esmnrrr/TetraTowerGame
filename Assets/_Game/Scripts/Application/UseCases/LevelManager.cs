@@ -3,6 +3,7 @@ using Game.Domain.Progression;
 using Game.Infrastructure.Save;
 using Game.Presentation.UI;
 using Game.Domain.Turns;
+using Unity.Netcode;
 
 namespace Game.Application.UseCases
 {
@@ -14,6 +15,7 @@ namespace Game.Application.UseCases
         [Header("References")]
         public ProgressRepository progressRepository;
         public HUDPresenter hudPresenter;
+        public GameObject defaultMultiplayerBoardPrefab;
 
         private int placedPieceCount = 0;
         private int droppedPieceCount = 0;
@@ -24,6 +26,28 @@ namespace Game.Application.UseCases
 
         private void Start()
         {
+            string savedMode = PlayerPrefs.GetString("SelectedGameMode", "Practice");
+
+            // --- MULTIPLAYER MODU ---
+            if (savedMode == "Multiplayer")
+            {
+                Debug.Log("Multiplayer modu seçildi. Network bağlantısı ve Server durumu bekleniyor...");
+
+                if (NetworkManager.Singleton != null)
+                {
+                    // Host/Server başladığında çalışması için olaya abone oluyoruz
+                    NetworkManager.Singleton.OnServerStarted += OnServerStarted;
+
+                    // Eğer buton zaten tıklandıysa ve Server aktifse doğrudan çalıştır
+                    if (NetworkManager.Singleton.IsServer)
+                    {
+                        SpawnMultiplayerBoard();
+                    }
+                }
+                return; 
+            }
+
+            // --- PATHWAY / PRACTICE MODU ---
             int selectedLevelIndex = PlayerPrefs.GetInt("SelectedLevelIndex", 1);
             
             currentLevelDefinition = Resources.Load<LevelDefinition>($"Levels/Level_{selectedLevelIndex}");
@@ -55,6 +79,44 @@ namespace Game.Application.UseCases
             else
             {
                 Debug.LogError($"Level_{selectedLevelIndex} bulunamadı! Lütfen Resources/Levels/ klasörüne ekleyin.");
+            }
+        }
+
+        private void OnDestroy()
+        {
+            // Olay aboneliğini temizle
+            if (NetworkManager.Singleton != null)
+            {
+                NetworkManager.Singleton.OnServerStarted -= OnServerStarted;
+            }
+        }
+
+        private void OnServerStarted()
+        {
+            Debug.Log("[LevelManager] Server başlatıldı! Platform ağda doğuruluyor...");
+            SpawnMultiplayerBoard();
+        }
+
+        private void SpawnMultiplayerBoard()
+        {
+            if (defaultMultiplayerBoardPrefab == null)
+            {
+                Debug.LogError("[LevelManager] defaultMultiplayerBoardPrefab atanmamış! Lütfen Inspector'dan atayın.");
+                return;
+            }
+
+            // 1. Host üzerinde platformu üret
+            GameObject boardInstance = Instantiate(defaultMultiplayerBoardPrefab, Vector3.zero, Quaternion.identity);
+
+            // 2. Ağa doğur (Client ekranında otomatik belirecek)
+            NetworkObject netObj = boardInstance.GetComponent<NetworkObject>();
+            if (netObj != null)
+            {
+                netObj.Spawn();
+            }
+            else
+            {
+                Debug.LogError("[LevelManager] Platform prefab'ında NetworkObject bileşeni YOK!");
             }
         }
 

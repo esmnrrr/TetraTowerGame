@@ -106,6 +106,38 @@ namespace Game.Presentation.UI
             }
         }
 
+        /// <summary>
+        /// Sunucudan (Host) gelen veya dışarıdan verilen spesifik 3 parçayı UI kartlarına basar.
+        /// Solo / Vs AI modlarını etkilemez, Multiplayer senkronizasyonu için kullanılır.
+        /// </summary>
+        public void ShowSpecificPieceSelection(List<PieceDefinition> pieces)
+        {
+            if (pieces == null || pieces.Count < 3) return;
+
+            SetHumanInputInteractable(true);
+            currentOptions = pieces;
+
+            if (selectionPanel != null) selectionPanel.SetActive(true);
+
+            for (int i = 0; i < 3; i++)
+            {
+                PieceDefinition pieceDef = currentOptions[i];
+
+                if (pieceNameTexts[i] != null && pieceDef != null)
+                    pieceNameTexts[i].text = pieceDef.DisplayName;
+
+                if (pieceIconImages[i] != null && pieceDef != null && pieceDef.Icon != null)
+                    pieceIconImages[i].sprite = pieceDef.Icon;
+
+                if (pieceButtons[i] != null)
+                {
+                    pieceButtons[i].onClick.RemoveAllListeners();
+                    int index = i;
+                    pieceButtons[index].onClick.AddListener(() => OnPieceSelected(currentOptions[index]));
+                }
+            }
+        }
+
         private void OnPieceSelected(PieceDefinition selectedPiece)
         {
             selectionPanel.SetActive(false);

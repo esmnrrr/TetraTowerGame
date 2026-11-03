@@ -1,5 +1,6 @@
 using UnityEngine;
-using Game.Domain.Pieces; // PieceDefinition için (Kendi namespace'in farklıysa düzelt)
+using Game.Domain.Pieces; // PieceDefinition için
+using Unity.Netcode; // NetworkObject ve NetworkManager için
 
 namespace Game.Application.Factories
 {
@@ -18,16 +19,40 @@ namespace Game.Application.Factories
 
             // 3. Fizik ayarlarını yap (Emin olmak için)
             Rigidbody rb = realPiece.GetComponent<Rigidbody>();
-            if (rb != null)
+
+            // MULTIPLAYER AĞA DOĞURMA
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
             {
-                rb.isKinematic = false; // Fizik motoru yönetsin (Düşsün)
-                rb.useGravity = true;   // Yerçekimi etki etsin
-                
-                // Eğer PieceDefinition'da özel bir kütle (Mass) tanımladıysak onu uygula
-                if (definition.Mass > 0)
+                NetworkObject netObj = realPiece.GetComponent<NetworkObject>();
+                if (netObj != null)
                 {
-                    rb.mass = definition.Mass;
+                    netObj.Spawn();
+
+                    // KRİTİK FİZİK ÇÖZÜMÜ:
+                    // Eğer bu bilgisayar Client ise yerel fiziği kapatıyoruz!
+                    // Parçanın hareketini yalnızca Host'un NetworkTransform verisi yönlendirmelidir.
+                    if (rb != null && !NetworkManager.Singleton.IsServer)
+                    {
+                        rb.isKinematic = true;
+                        rb.useGravity = false;
+                    }
+                    else if (rb != null && NetworkManager.Singleton.IsServer)
+                    {
+                        rb.isKinematic = false;
+                        rb.useGravity = true;
+                        if (definition.Mass > 0) rb.mass = definition.Mass;
+                    }
                 }
+                else
+                {
+                    Debug.LogError($"[PieceFactory] {realPiece.name} üzerinde NetworkObject bileşeni YOK! Ağda paylaşılamaz.");
+                }
+            }
+            else if (rb != null) // Tek oyunculu (Practice/VsAI) modlar için normal fizik
+            {
+                rb.isKinematic = false;
+                rb.useGravity = true;
+                if (definition.Mass > 0) rb.mass = definition.Mass;
             }
 
             // 4. Collider'ları etkinleştir ve fizik materyalini uygula
@@ -35,10 +60,8 @@ namespace Game.Application.Factories
             foreach (Collider coll in colliders)
             {
                 coll.enabled = true;
-                if (definition.PhysicsMaterial != null)
-                {
-                    coll.material = definition.PhysicsMaterial;
-                }
+                if (definition.PhysicsMaterial != null) coll.material = definition.PhysicsMaterial;
+
             }
 
             return realPiece;
