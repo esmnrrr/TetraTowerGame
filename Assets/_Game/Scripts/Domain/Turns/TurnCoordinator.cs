@@ -95,13 +95,19 @@ namespace Game.Domain.Turns
 
                 if (IsServer)
                 {
-                    // Sunucu ilk oyuncuyu varsayılan olarak Host (0) seçer
-                    ActivePlayerClientId.Value = NetworkManager.Singleton.ConnectedClientsIds[0];
-                    StartTurn();
+                    // Sunucuya yeni bir oyuncu bağlandığında çalışacak olayı dinle
+                    NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
+
+                    // Eğer Client zaten bağlanmışsa (örn. Lobi/Sahne geçişinde) maçı başlat
+                    if (NetworkManager.Singleton.ConnectedClientsIds.Count >= 2)
+                    {
+                        SelectRandomStartingPlayerAndStart();
+                    }
                 }
                 else
                 {
-                    UpdateUIForMultiplayerTurn(ActivePlayerClientId.Value);
+                    // Client bağlandığı an Sunucudan mevcut durumu ve kartları ister
+                    RequestCurrentTurnStateRpc();
                 }
             }
         }
@@ -111,7 +117,39 @@ namespace Game.Domain.Turns
             if (currentMode == GameMode.Multiplayer)
             {
                 ActivePlayerClientId.OnValueChanged -= OnMultiplayerTurnPlayerChanged;
+
+                if (IsServer && NetworkManager.Singleton != null)
+                {
+                    NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+                }
             }
+        }
+
+        private void OnClientConnected(ulong clientId)
+        {
+            if (!IsServer) return;
+
+            // Odada 2 oyuncu tamamlandığı an (Host + Client) rastgele seçimi yap ve maçı başlat!
+            if (NetworkManager.Singleton.ConnectedClientsIds.Count >= 2)
+            {
+                SelectRandomStartingPlayerAndStart();
+            }
+        }
+
+        private void SelectRandomStartingPlayerAndStart()
+        {
+            var connectedClients = NetworkManager.Singleton.ConnectedClientsIds;
+            if (connectedClients.Count > 0)
+            {
+                // 2 oyuncu arasından (0: Host, 1: Client) %50 şansla rastgele ilk hamle yapanı seç
+                int randomIndex = UnityEngine.Random.Range(0, connectedClients.Count);
+                ulong startingPlayerId = connectedClients[randomIndex];
+
+                ActivePlayerClientId.Value = startingPlayerId;
+                Debug.Log($"[TurnCoordinator] 2 Oyuncu Bağlandı! Maça başlayan rastgele oyuncu ClientId: {startingPlayerId}");
+            }
+
+            StartTurn();
         }
 
         public override void OnDestroy()
@@ -193,6 +231,22 @@ namespace Game.Domain.Turns
                 // Tıklanabilirlik Durumu: Sıra bu bilgisayardaki oyuncuda mı?
                 bool isMyTurn = (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId == activePlayerId);
                 uiPresenter.SetHumanInputInteractable(isMyTurn);
+            }
+        }
+
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+        private void RequestCurrentTurnStateRpc()
+        {
+            // Yalnızca Sunucu (Host) yanıt verir ve hafızadaki 3 kart bilgisini istemciye gönderir
+            if (IsServer && currentTurnPieceNames != null && currentTurnPieceNames.Length >= 3 && !string.IsNullOrEmpty(currentTurnPieceNames[0]))
+            {
+                SyncTurnToClientsClientRpc(
+                    currentTurnNumber, 
+                    ActivePlayerClientId.Value, 
+                    currentTurnPieceNames[0], 
+                    currentTurnPieceNames[1], 
+                    currentTurnPieceNames[2]
+                );
             }
         }
 
