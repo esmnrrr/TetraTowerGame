@@ -5,6 +5,8 @@ using Unity.Netcode;
 using Game.Presentation.UI;
 using Game.Application.UseCases;
 using Game.Presentation.Input;
+using Game.Domain.Pieces;
+using System.Collections.Generic;
 
 namespace Game.Domain.Turns
 {
@@ -44,6 +46,8 @@ namespace Game.Domain.Turns
         [Header("Game Configuration")]
         public GameMode currentMode = GameMode.Practice;
         public PlayerType currentPlayer = PlayerType.Human;
+                private string[] currentTurnPieceNames = new string[3];
+
 
         [Header("Multiplayer Sync")]
         [Tooltip("Ağda sırası gelen oyuncunun ClientId'si (Yalnızca Server günceller)")]
@@ -124,32 +128,33 @@ namespace Game.Domain.Turns
             Debug.Log($"--- TUR {currentTurnNumber} BAŞLADI | MOD: {currentMode} | SIRA: {currentPlayer} ---");
 
             // --- MULTIPLAYER AKIŞI ---
-            // Tur başlatma ve parça seçimi kararlarını yalnızca Server (Host) alır
-            if (IsServer)
-            {
-                currentState = TurnState.WaitingForSelection;
-                Debug.Log($"--- TUR {currentTurnNumber} BAŞLADI | SIRA PLAYER ID: {ActivePlayerClientId.Value} ---");
-
-                // Tüm istemcilerin (Client) ekranındaki UI'ı güncellenmesi için ClientRpc çağrılır
-                SyncTurnToClientsClientRpc(currentTurnNumber, ActivePlayerClientId.Value);
-            }
-
             if (currentMode == GameMode.Multiplayer)
+            {
+                if (IsServer)
                 {
                     currentState = TurnState.WaitingForSelection;
 
-                    // DÜZELTME: Kartları sadece Server'da değil, HER İKİ EKRANDA DA (Host & Client) göster!
-                    if (uiPresenter != null)
+                    // 1. Sunucu TEK BİR KEZ 3 rastgele parça belirler ve hafızaya kaydeder
+                    if (uiPresenter != null && uiPresenter.selectionService != null)
                     {
-                        uiPresenter.ShowPieceSelection();
+                        var pieces = uiPresenter.selectionService.GetThreeRandomPieces();
+                        if (pieces != null && pieces.Count >= 3)
+                        {
+                            currentTurnPieceNames[0] = pieces[0].name;
+                            currentTurnPieceNames[1] = pieces[1].name;
+                            currentTurnPieceNames[2] = pieces[2].name;
+                        }
                     }
 
-                    // Sıra kimdeyse onun kartlarını açar, diğerinikini kilitler
-                    UpdateUIForMultiplayerTurn(ActivePlayerClientId.Value);
-                    return;
-                }
+                    Debug.Log($"--- TUR {currentTurnNumber} BAŞLADI | SIRA PLAYER ID: {ActivePlayerClientId.Value} ---");
 
-            // --- PRACTICE (PATHWAY) & VS AI AKIŞI ---
+                    // 2. Hem Host hem Client için BİREBİR AYNI 3 kartı senkronize et
+                    SyncTurnToClientsClientRpc(currentTurnNumber, ActivePlayerClientId.Value, currentTurnPieceNames[0], currentTurnPieceNames[1], currentTurnPieceNames[2]);
+                }
+                return;
+            }
+
+            // --- PRACTICE (SOLO) & VS AI AKIŞI ---
             bool isAITurn = (currentMode == GameMode.VsAI && currentPlayer == PlayerType.AI);
             currentState = isAITurn ? TurnState.PlacingPiece : TurnState.WaitingForSelection;
 
@@ -166,22 +171,92 @@ namespace Game.Domain.Turns
             }
         }
         
-            [ClientRpc]
-            private void SyncTurnToClientsClientRpc(int turnNumber, ulong activePlayerId)
+        [ClientRpc]
+        private void SyncTurnToClientsClientRpc(int turnNumber, ulong activePlayerId, string p1, string p2, string p3)
+        {
+            currentTurnNumber = turnNumber;
+
+            // İsmi verilen 3 parçayı projeden / hafızadan çek
+            List<PieceDefinition> syncedPieces = new List<PieceDefinition>
             {
-                currentTurnNumber = turnNumber;
+                GetPieceDefByName(p1),
+                GetPieceDefByName(p2),
+                GetPieceDefByName(p3)
+            };
 
-                if (uiPresenter != null)
+            // Hem Host hem Client ekranında BİREBİR AYNI 3 kartı göster
+            if (uiPresenter != null)
+            {
+                uiPresenter.ShowSpecificPieceSelection(syncedPieces);
+                uiPresenter.UpdateRoundText(turnNumber);
+
+                // Tıklanabilirlik Durumu: Sıra bu bilgisayardaki oyuncuda mı?
+                bool isMyTurn = (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId == activePlayerId);
+                uiPresenter.SetHumanInputInteractable(isMyTurn);
+            }
+        }
+
+        private PieceDefinition GetPieceDefByName(string pieceName)
+        {
+            if (string.IsNullOrEmpty(pieceName)) return null;
+
+            // 1. HUDPresenter üzerindeki mevcut parçalar listesinden ara
+            if (uiPresenter != null && uiPresenter.selectionService != null && uiPresenter.selectionService.availablePieces != null)
+            {
+                foreach (var def in uiPresenter.selectionService.availablePieces)
                 {
-                    // Hem Host hem Client kendi ekranında 3 kart seçeneğini yeniler
-                    uiPresenter.ShowPieceSelection();
-                    uiPresenter.UpdateRoundText(turnNumber);
-
-                    // Sıra bu bilgisayardaki oyuncuda mı kontrol edilir
-                    bool isMyTurn = (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId == activePlayerId);
-                    uiPresenter.SetHumanInputInteractable(isMyTurn);
+                    if (def != null && (def.name.Equals(pieceName, StringComparison.OrdinalIgnoreCase) || 
+                                        def.DisplayName.Equals(pieceName, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        return def;
+                    }
                 }
             }
+
+            // 2. Bulunamadıysa Resources/Pieces/ klasöründen yükle
+            PieceDefinition loaded = Resources.Load<PieceDefinition>($"Pieces/{pieceName}");
+            if (loaded != null) return loaded;
+
+            // 3. Klasördeki tüm parçaları tarayarak tam eşleşme sağla
+            var allPieces = Resources.LoadAll<PieceDefinition>("Pieces");
+            foreach (var def in allPieces)
+            {
+                if (def != null && (def.name.Equals(pieceName, StringComparison.OrdinalIgnoreCase) || 
+                                    def.DisplayName.Equals(pieceName, StringComparison.OrdinalIgnoreCase)))
+                {
+                    return def;
+                }
+            }
+
+            return null;
+        }
+        
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+        public void RequestSpawnPieceServerRpc(string pieceDefName, Vector3 position, Quaternion rotation)
+        {
+            PieceDefinition pieceDef = GetPieceDefByName(pieceDefName);
+
+            if (pieceDef != null)
+            {
+                if (placementController != null && placementController.pieceFactory != null)
+                {
+                    // 1. Gerçek parçayı Sunucu üzerinde doğur
+                    placementController.pieceFactory.CreateRealPiece(pieceDef, position, rotation);
+                    Debug.Log($"[TurnCoordinator] {pieceDefName} başarıyla Sunucuda doğuruldu!");
+
+                    // 2. KİLİT NOKTA: Sunucuda durum güncellemesi yapıp Fizik Sakinleşme Takibini başlat
+                    if (currentState == TurnState.WaitingForSelection || currentState == TurnState.PlacingPiece)
+                    {
+                        currentState = TurnState.PlacingPiece;
+                        BeginSimulation();
+                    }
+                }
+            }
+            else
+            {
+                Debug.LogError($"[TurnCoordinator] {pieceDefName} isimli PieceDefinition bulunamadı!");
+            }
+        }
 
         private void OnMultiplayerTurnPlayerChanged(ulong previousPlayerId, ulong newPlayerId)
         {
