@@ -323,27 +323,19 @@ namespace Game.Domain.Turns
                     currentState = TurnState.GameOver;
                     Debug.Log("OYUN BİTTİ! Kule yıkıldı.");
 
-                    if (currentMode == GameMode.Practice && levelManager != null)
+                    if (currentMode == GameMode.Multiplayer)
+                    {
+                        // Sunucu, kuleyi düşüren kişinin ID'sini ağdaki tüm istemcilere bildirir
+                        TriggerMultiplayerGameOverClientRpc(lastPlacerClientId);
+                    }
+                    else if (currentMode == GameMode.Practice && levelManager != null)
                     {
                         levelManager.EvaluateAndFinishLevel(isTowerCollapsed: true);
                     }
                     else if (uiPresenter != null)
                     {
-                        bool isWinner = false;
-                        string winnerName = "";
-
-                        if (currentMode == GameMode.Multiplayer)
-                        {
-                            var clientIds = NetworkManager.Singleton.ConnectedClientsIds;
-                            ulong winnerId = (lastPlacerClientId == clientIds[0] && clientIds.Count > 1) ? clientIds[1] : clientIds[0];
-                            isWinner = (NetworkManager.Singleton.LocalClientId == winnerId);
-                            winnerName = (winnerId == 0) ? "Host (Oyuncu 1)" : "Client (Oyuncu 2)";
-                        }
-                        else if (currentMode == GameMode.VsAI)
-                        {
-                            isWinner = (lastPlacer != PlayerType.Human);
-                            winnerName = (lastPlacer == PlayerType.Human) ? "Yapay Zeka" : "Oyuncu 1";
-                        }
+                        bool isWinner = (lastPlacer != PlayerType.Human);
+                        string winnerName = (lastPlacer == PlayerType.Human) ? "Yapay Zeka" : "Oyuncu 1";
 
                         GameResultData resultData = new GameResultData
                         {
@@ -377,6 +369,29 @@ namespace Game.Domain.Turns
 
                     StartCoroutine(EndTurnRoutine());
                 }
+            }
+        }
+
+        [ClientRpc]
+        private void TriggerMultiplayerGameOverClientRpc(ulong loserClientId)
+        {
+            currentState = TurnState.GameOver;
+
+            if (uiPresenter != null && NetworkManager.Singleton != null)
+            {
+                // Yerel oyuncu kuleyi düşüren kişi DEĞİLSE maçı kazanmıştır
+                bool amIWinner = (NetworkManager.Singleton.LocalClientId != loserClientId);
+
+                GameResultData resultData = new GameResultData
+                {
+                    Mode = GameMode.Multiplayer,
+                    ScoreOrTurns = currentTurnNumber - 1,
+                    IsTowerCollapsed = true,
+                    IsWinner = amIWinner,
+                    WinnerName = amIWinner ? "WIN!" : "LOSE!"
+                };
+
+                uiPresenter.DisplayGameOver(resultData);
             }
         }
 

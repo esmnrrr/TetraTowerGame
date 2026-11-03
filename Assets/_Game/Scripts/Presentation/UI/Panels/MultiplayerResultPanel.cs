@@ -12,9 +12,25 @@ namespace Game.Presentation.UI.Panels
         public override void ShowResult(GameResultData data)
         {
             gameObject.SetActive(true);
-            titleText.text = $"{data.WinnerName} KAZANDI!";
-            titleText.color = new Color32(241, 196, 15, 255); // Sarı / Altın
-            scoreText.text = $"Dayanılan Tur: {data.ScoreOrTurns}";
+
+            if (titleText != null)
+            {
+                if (data.IsWinner)
+                {
+                    titleText.text = "WIN!";
+                    titleText.color = new Color32(46, 204, 113, 255); // Yeşil
+                }
+                else
+                {
+                    titleText.text = "LOSE!";
+                    titleText.color = new Color32(231, 76, 60, 255); // Kırmızı
+                }
+            }
+
+            if (scoreText != null)
+            {
+                scoreText.text = $"Score: {data.ScoreOrTurns}";
+            }
         }
     }
 }
