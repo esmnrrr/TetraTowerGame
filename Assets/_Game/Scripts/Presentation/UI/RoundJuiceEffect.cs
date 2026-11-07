@@ -33,6 +33,8 @@ namespace Game.Presentation.UI
 
         public void PlayJuiceEffect()
         {
+            if (!gameObject.activeInHierarchy) return;
+            
             if (activeCoroutine != null)
             {
                 StopCoroutine(activeCoroutine);

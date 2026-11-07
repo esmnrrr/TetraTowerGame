@@ -93,12 +93,16 @@ namespace Game.Domain.Turns
             {
                 ActivePlayerClientId.OnValueChanged += OnMultiplayerTurnPlayerChanged;
 
+                if (NetworkManager.Singleton != null)
+                {
+                    // Bağlantı kopmalarını ve ayrılmaları dinle
+                    NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+                }
+
                 if (IsServer)
                 {
-                    // Sunucuya yeni bir oyuncu bağlandığında çalışacak olayı dinle
                     NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
 
-                    // Eğer Client zaten bağlanmışsa (örn. Lobi/Sahne geçişinde) maçı başlat
                     if (NetworkManager.Singleton.ConnectedClientsIds.Count >= 2)
                     {
                         SelectRandomStartingPlayerAndStart();
@@ -106,7 +110,6 @@ namespace Game.Domain.Turns
                 }
                 else
                 {
-                    // Client bağlandığı an Sunucudan mevcut durumu ve kartları ister
                     RequestCurrentTurnStateRpc();
                 }
             }
@@ -118,9 +121,14 @@ namespace Game.Domain.Turns
             {
                 ActivePlayerClientId.OnValueChanged -= OnMultiplayerTurnPlayerChanged;
 
-                if (IsServer && NetworkManager.Singleton != null)
+                if (NetworkManager.Singleton != null)
                 {
-                    NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+                    NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
+
+                    if (IsServer)
+                    {
+                        NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+                    }
                 }
             }
         }
@@ -477,6 +485,103 @@ namespace Game.Domain.Turns
             }
 
             StartTurn();
+        }
+
+        private int rematchVoteCount = 0;
+
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+        public void RequestRematchServerRpc(RpcParams rpcParams = default)
+        {
+            if (!IsServer) return;
+
+            rematchVoteCount++;
+            ulong senderClientId = rpcParams.Receive.SenderClientId;
+
+            Debug.Log($"[TurnCoordinator] ClientId {senderClientId} Rematch istedi. Toplam Oy: {rematchVoteCount}");
+
+            if (rematchVoteCount >= NetworkManager.Singleton.ConnectedClientsIds.Count)
+            {
+                // İki oyuncu da onayladıysa maçı sıfırla ve yeniden başlat
+                rematchVoteCount = 0;
+                RestartMultiplayerMatchClientRpc();
+            }
+            else
+            {
+                // Diğer oyuncuya rakibinin Rematch istediğini bildir
+                NotifyRematchRequestedClientRpc(senderClientId);
+            }
+        }
+
+        [ClientRpc]
+        private void NotifyRematchRequestedClientRpc(ulong requesterClientId)
+        {
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId != requesterClientId)
+            {
+                if (uiPresenter != null && uiPresenter.multiplayerPanel != null)
+                {
+                    uiPresenter.multiplayerPanel.UpdateRematchStatus("Rakip tekrar oynamak istiyor!");
+                }
+            }
+        }
+
+        [ClientRpc]
+        private void RestartMultiplayerMatchClientRpc()
+        {
+            // Bitiş panelini kapat, tur sayısını 1 yap ve yeni maçı başlat
+            if (uiPresenter != null && uiPresenter.multiplayerPanel != null)
+            {
+                uiPresenter.multiplayerPanel.HidePanel();
+            }
+
+            currentTurnNumber = 1;
+            currentState = TurnState.Setup;
+
+            // Sahnedeki eski blokları temizlemek için (Host tarafında)
+            if (IsServer)
+            {
+                var spawnedPieces = FindObjectsByType<NetworkObject>(FindObjectsSortMode.None);
+                foreach (var netObj in spawnedPieces)
+                {
+                    if (netObj.gameObject.name.Contains("Clone") || netObj.gameObject.name.Contains("Block"))
+                    {
+                        netObj.Despawn(true);
+                    }
+                }
+
+                // Rastgele yeni ilk oyuncu seç ve başlat
+                SelectRandomStartingPlayerAndStart();
+            }
+        }
+
+        private void OnClientDisconnected(ulong disconnectedClientId)
+        {
+            Debug.LogWarning($"[TurnCoordinator] ClientId {disconnectedClientId} oyundan ayrıldı veya bağlantısı koptu!");
+
+            // Maç zaten bittiyse (kule çöktüyse vb.) tekrar tetikleme
+            if (currentState == TurnState.GameOver) return;
+
+            currentState = TurnState.GameOver;
+
+            // Oyunda kalan taraf bu cihaz olduğu için hükmen KAZANDI sayılır
+            if (uiPresenter != null)
+            {
+                GameResultData resultData = new GameResultData
+                {
+                    Mode = GameMode.Multiplayer,
+                    ScoreOrTurns = currentTurnNumber - 1,
+                    IsTowerCollapsed = false,
+                    IsWinner = true,
+                    WinnerName = "Rival leaved!"
+                };
+
+                uiPresenter.DisplayGameOver(resultData);
+
+                // Ekran açıldıktan sonra bilgi mesajını güncelle
+                if (uiPresenter.multiplayerPanel != null)
+                {
+                    uiPresenter.multiplayerPanel.UpdateRematchStatus("Rival disconnected! You win by default.");
+                }
+            }
         }
     }
 }
