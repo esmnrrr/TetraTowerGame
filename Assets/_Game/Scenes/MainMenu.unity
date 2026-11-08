@@ -5066,7 +5066,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d04e6ee371371c648963ed42427c7084, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.Lobby.PlayerIdentityView
-  avatars: {fileID: 11400000, guid: 473991e5938189a4692a6fc3f1ad7686, type: 2}
+  avatars: {fileID: 11400000, guid: 82917fabfa3b80f47bcbd5af6600097f, type: 2}
   avatarImage: {fileID: 502815446}
   nameInput: {fileID: 436875067}
 --- !u!1 &303118148
@@ -8623,8 +8623,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.Lobby.OnlineLobbyPresenter
   serviceSource: {fileID: 356079898}
-  avatars: {fileID: 11400000, guid: 473991e5938189a4692a6fc3f1ad7686, type: 2}
-  maps: {fileID: 0}
+  avatars: {fileID: 11400000, guid: 82917fabfa3b80f47bcbd5af6600097f, type: 2}
+  maps: {fileID: 11400000, guid: ef63e5c4812b68e4184078fe71e5dbec, type: 2}
   lobbyIdText: {fileID: 263080536}
   ipInputField: {fileID: 1306199250}
   copyCodeButton: {fileID: 364909621}
@@ -17443,7 +17443,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 452dec10deb4f9249b47b8c243f14836, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.Lobby.MapSelectorView
-  catalog: {fileID: 0}
+  catalog: {fileID: 11400000, guid: ef63e5c4812b68e4184078fe71e5dbec, type: 2}
   slots:
   - button: {fileID: 846921407}
     icon: {fileID: 846921408}
@@ -27572,7 +27572,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d04e6ee371371c648963ed42427c7084, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Game.Presentation.Lobby.PlayerIdentityView
-  avatars: {fileID: 11400000, guid: 473991e5938189a4692a6fc3f1ad7686, type: 2}
+  avatars: {fileID: 11400000, guid: 82917fabfa3b80f47bcbd5af6600097f, type: 2}
   avatarImage: {fileID: 645099876}
   nameInput: {fileID: 405961877}
 --- !u!1001 &1598805444
@@ -36881,6 +36881,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 9139091936589608792, guid: e15371aed77def1468ef0b3b10745b8e, type: 3}
+      propertyPath: maps
+      value: 
+      objectReference: {fileID: 11400000, guid: ef63e5c4812b68e4184078fe71e5dbec, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
