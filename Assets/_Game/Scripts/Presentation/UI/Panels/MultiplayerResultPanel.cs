@@ -4,6 +4,8 @@ using TMPro;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using Game.Domain.Turns;
+using Game.Domain.Lobby;
+using Game.Infrastructure.Net;
 
 namespace Game.Presentation.UI.Panels
 {
@@ -15,10 +17,15 @@ namespace Game.Presentation.UI.Panels
         public TMP_Text rematchStatusText; // "Rakip bekleniyor..." uyarısı gösterilecek metin
 
         [Header("Buttons")]
-        public Button rematchButton; // Sahnendeki "RestartButton"
-        public Button exitButton;    // Sahnendeki "BackToPathwayButton" (EXIT)
+        public Button rematchButton;
+        public Button exitButton;   
 
         private bool hasVotedRematch = false;
+
+        [Header("Oyuncu Bilgisi")]
+        public PlayerBadgeView localBadge;      // kendi avatar + ismin
+        public PlayerBadgeView opponentBadge;   // rakibin avatar + ismi
+        public AvatarCatalog avatars;
 
         public override void ShowResult(GameResultData data)
         {
@@ -55,6 +62,19 @@ namespace Game.Presentation.UI.Panels
             {
                 scoreText.text = $"Score: {data.ScoreOrTurns}";
             }
+            BindPlayers();
+        }
+
+        private void BindPlayers()
+        {
+            var lobby = FindAnyObjectByType<NetcodeLobbyService>();
+            if (lobby == null || avatars == null) return;
+
+            foreach (var p in lobby.Roster)
+            {
+                if (p.ClientId == lobby.LocalClientId) localBadge.Bind(p, avatars);
+                else opponentBadge.Bind(p, avatars);
+            }
         }
 
         private void OnRematchButtonClicked()
@@ -79,6 +99,7 @@ namespace Game.Presentation.UI.Panels
             if (NetworkManager.Singleton != null)
             {
                 NetworkManager.Singleton.Shutdown();
+                Destroy(NetworkManager.Singleton.gameObject);
             }
 
             SceneManager.LoadScene("MainMenu");

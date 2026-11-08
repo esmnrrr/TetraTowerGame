@@ -7,6 +7,7 @@ using Game.Application.UseCases;
 using Game.Presentation.Input;
 using Game.Domain.Pieces;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement; 
 
 namespace Game.Domain.Turns
 {
@@ -69,14 +70,14 @@ namespace Game.Domain.Turns
         private PlayerType lastPlacer = PlayerType.Human;
         private ulong lastPlacerClientId = 0;
 
-        private void Start()
+        private void Awake()
         {
             string savedMode = PlayerPrefs.GetString("SelectedGameMode", "Practice");
-            if (Enum.TryParse(savedMode, out GameMode parsedMode))
-                currentMode = parsedMode;
-            else
-                currentMode = GameMode.Practice;
-
+            currentMode = Enum.TryParse(savedMode, out GameMode parsed) ? parsed : GameMode.Practice;
+        }
+        
+        private void Start()
+        {
             if (settleDetector != null) settleDetector.OnPhysicsSettled += OnPhysicsSettled;
             if (placementController != null) placementController.OnPieceDropped += OnHumanPieceDropped;
 
@@ -487,28 +488,33 @@ namespace Game.Domain.Turns
             StartTurn();
         }
 
-        private int rematchVoteCount = 0;
+        private readonly HashSet<ulong> rematchVotes = new HashSet<ulong>();
 
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
         public void RequestRematchServerRpc(RpcParams rpcParams = default)
         {
             if (!IsServer) return;
+            if (currentState != TurnState.GameOver) return;
 
-            rematchVoteCount++;
-            ulong senderClientId = rpcParams.Receive.SenderClientId;
+            // Rakip oyundan ayrıldıysa rematch olmaz
+            if (NetworkManager.Singleton.ConnectedClientsIds.Count < 2) return;
 
-            Debug.Log($"[TurnCoordinator] ClientId {senderClientId} Rematch istedi. Toplam Oy: {rematchVoteCount}");
+            ulong sender = rpcParams.Receive.SenderClientId;
+            if (!rematchVotes.Add(sender)) return;          // aynı kişi iki kez oy veremesin
 
-            if (rematchVoteCount >= NetworkManager.Singleton.ConnectedClientsIds.Count)
+            Debug.Log($"[TurnCoordinator] ClientId {sender} Rematch istedi. Oy: {rematchVotes.Count}");
+
+            if (rematchVotes.Count >= NetworkManager.Singleton.ConnectedClientsIds.Count)
             {
-                // İki oyuncu da onayladıysa maçı sıfırla ve yeniden başlat
-                rematchVoteCount = 0;
-                RestartMultiplayerMatchClientRpc();
+                rematchVotes.Clear();
+                // Sahneyi HOST yeniden yükler; iki tarafta da LevelManager.Start() çalışır,
+                // platform, çöküş durumu, kamera ve parçalar sıfırdan gelir.
+                NetworkManager.Singleton.SceneManager.LoadScene(
+                    SceneManager.GetActiveScene().name, LoadSceneMode.Single);
             }
             else
             {
-                // Diğer oyuncuya rakibinin Rematch istediğini bildir
-                NotifyRematchRequestedClientRpc(senderClientId);
+                NotifyRematchRequestedClientRpc(sender);    // "Rakip tekrar oynamak istiyor"
             }
         }
 
