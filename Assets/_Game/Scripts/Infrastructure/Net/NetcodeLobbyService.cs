@@ -55,6 +55,10 @@ namespace Game.Infrastructure.Net
         {
             if (networkManager == null) networkManager = GetComponent<NetworkManager>();
             if (transport == null) transport = GetComponent<UnityTransport>();
+
+            // Host ve client AYNI ağ ayarıyla başlamalı
+            networkManager.NetworkConfig.ConnectionApproval = true;
+            networkManager.ConnectionApprovalCallback = Approve;
         }
 
         private void OnEnable()
@@ -78,8 +82,8 @@ namespace Game.Infrastructure.Net
             pendingMap = mapIndex;
             matchStarted = false;
 
-            networkManager.NetworkConfig.ConnectionApproval = true;
-            networkManager.ConnectionApprovalCallback = Approve;
+            // networkManager.NetworkConfig.ConnectionApproval = true;
+            // networkManager.ConnectionApprovalCallback = Approve;
             transport.SetConnectionData("127.0.0.1", port, "0.0.0.0"); // 0.0.0.0 = dışarıdan gelenleri de dinle
 
             if (!networkManager.StartHost())
