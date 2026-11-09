@@ -10487,6 +10487,10 @@ PrefabInstance:
       value: GameManager
       objectReference: {fileID: 0}
     - target: {fileID: 1337955102018929249, guid: 07b291c91e9595a46807c1c918830bd0, type: 3}
+      propertyPath: currentMode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1337955102018929249, guid: 07b291c91e9595a46807c1c918830bd0, type: 3}
       propertyPath: uiPresenter
       value: 
       objectReference: {fileID: 42278338}
