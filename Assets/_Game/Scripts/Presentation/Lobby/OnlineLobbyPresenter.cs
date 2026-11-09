@@ -18,7 +18,7 @@ namespace Game.Presentation.Lobby
 
         [Header("Sol kart")]
         [SerializeField] private TMP_Text lobbyIdText;
-        [SerializeField] private TMP_InputField ipInputField;   // salt okunur, kopyalanacak adres
+        //[SerializeField] private TMP_InputField ipInputField;   // salt okunur, kopyalanacak adres
         [SerializeField] private Button copyCodeButton;
         [SerializeField] private Image mapPreviewImage;
 
@@ -28,7 +28,7 @@ namespace Game.Presentation.Lobby
         [SerializeField] private PlayerSlotView clientSlot;
         [SerializeField] private GameObject waitingSlot;
         [SerializeField] private Button readyButton;
-        [SerializeField] private TMP_Text readyButtonLabel;     // opsiyonel: READY! / CANCEL
+        [SerializeField] private TMP_Text readyButtonLabel;    
 
         [Header("Alt butonlar")]
         [SerializeField] private Button leaveButton;
@@ -40,9 +40,10 @@ namespace Game.Presentation.Lobby
         private void Awake()
         {
             service = serviceSource;
-            ipInputField.readOnly = true;
+            // ipInputField.readOnly = true;
 
-            copyCodeButton.onClick.AddListener(() => GUIUtility.systemCopyBuffer = service.Address);
+            copyCodeButton.onClick.AddListener(() => GUIUtility.systemCopyBuffer = service.LobbyCode);
+            // copyCodeButton.onClick.AddListener(() => GUIUtility.systemCopyBuffer = service.Address);
             readyButton.onClick.AddListener(() => service.SetReady(!localReady));
             leaveButton.onClick.AddListener(service.Leave);
             startButton.onClick.AddListener(service.StartGame);
@@ -66,7 +67,7 @@ namespace Game.Presentation.Lobby
             var roster = service.Roster;
 
             lobbyIdText.text = service.LobbyCode;
-            ipInputField.text = service.Address;
+            // ipInputField.text = service.Address;
             var map = maps.Get(service.MapIndex);
             if (map != null && map.preview != null) mapPreviewImage.sprite = map.preview;
 
