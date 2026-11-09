@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Game.Presentation.Lobby;
 
 namespace Game.Presentation.UI
 {
@@ -17,7 +18,10 @@ namespace Game.Presentation.UI
         public PathwayMapPresenter pathwayPresenter;
 
         [Header("Scene Settings")]
-        public string gameplaySceneName = "Test_Physics"; // Gameplay veya Test_Physics sahnenin adı
+        public string gameplaySceneName = "Map_Kitchen";
+
+        [Header("Lobi")]
+        public LobbyNavigator lobbyNavigator;
 
         private void Start()
         {
@@ -93,11 +97,17 @@ namespace Game.Presentation.UI
             SceneManager.LoadScene(gameplaySceneName);
         }
 
+        // public void SelectMultiplayerMode()
+        // {
+        //     PlayerPrefs.SetString("SelectedGameMode", "Multiplayer");
+        //     PlayerPrefs.Save();
+        //     SceneManager.LoadScene(gameplaySceneName);
+        // }
+
         public void SelectMultiplayerMode()
         {
-            PlayerPrefs.SetString("SelectedGameMode", "Multiplayer");
-            PlayerPrefs.Save();
-            SceneManager.LoadScene(gameplaySceneName);
+            if (modeSelectionCard != null) modeSelectionCard.SetActive(false);
+            lobbyNavigator.OpenSetup();
         }
 
         public void QuitGame()

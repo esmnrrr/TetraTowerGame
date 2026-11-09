@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eaf74b67e42951241a4353fa068937ad, type: 3}
+  m_Name: MapCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Domain.Lobby.MapCatalog
+  maps:
+  - displayName: Kitchen
+    sceneName: Map_Kitchen
+    icon: {fileID: -356512686673629875, guid: 4655d6f13332c53499b7a807e56b4abb, type: 3}
+    preview: {fileID: -356512686673629875, guid: 4655d6f13332c53499b7a807e56b4abb, type: 3}
+    unlocked: 1
+  - displayName: Bathroom
+    sceneName: Map_Bathroom
+    icon: {fileID: 3321140373611641258, guid: 0c2e6f2af5c119941b60999262fa70d5, type: 3}
+    preview: {fileID: 0}
+    unlocked: 0
+  - displayName: Bedroom
+    sceneName: Map_Bedroom
+    icon: {fileID: 4619951052723145288, guid: 5732b00d4bfa7d44782f2f241597239b, type: 3}
+    preview: {fileID: 0}
+    unlocked: 0
+  - displayName: Living Room
+    sceneName: Map_Living
+    icon: {fileID: 1618594120358258287, guid: ee03f38e83d186d49a9316d4b333420c, type: 3}
+    preview: {fileID: 0}
+    unlocked: 0

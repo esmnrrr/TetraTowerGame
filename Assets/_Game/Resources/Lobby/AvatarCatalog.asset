@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c675877d78ee74845985bf295ec3a2c6, type: 3}
+  m_Name: AvatarCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::Game.Domain.Lobby.AvatarCatalog
+  avatars:
+  - {fileID: 5343838773612461533, guid: dc946f7e08ad8124cbbd551e4199d0a8, type: 3}
+  - {fileID: 2501929424458389786, guid: 34abe1f4579eceb43ac6a77633970a46, type: 3}
+  - {fileID: 3976626935512022932, guid: 0c067b3daa8f9274086cb93e9ea9879a, type: 3}
+  - {fileID: -4547550831291018113, guid: e56569ae78a3e6d429e613c5fcc168e9, type: 3}
+  - {fileID: 4353754419946082015, guid: 596de4c67ce36a94d81386cc99da3e64, type: 3}
+  - {fileID: -231617904557318829, guid: 043687f3141e1944f8eaf352bad54594, type: 3}
+  - {fileID: 2847141425975445875, guid: 4efc33e41a200be4ba6e33da3778e867, type: 3}
+  - {fileID: 5745437205924008565, guid: fc481e58da820f74d855135d6594875a, type: 3}

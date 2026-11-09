@@ -7,6 +7,7 @@ using Game.Application.UseCases;
 using Game.Presentation.Input;
 using Game.Domain.Pieces;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement; 
 
 namespace Game.Domain.Turns
 {
@@ -69,14 +70,14 @@ namespace Game.Domain.Turns
         private PlayerType lastPlacer = PlayerType.Human;
         private ulong lastPlacerClientId = 0;
 
-        private void Start()
+        private void Awake()
         {
             string savedMode = PlayerPrefs.GetString("SelectedGameMode", "Practice");
-            if (Enum.TryParse(savedMode, out GameMode parsedMode))
-                currentMode = parsedMode;
-            else
-                currentMode = GameMode.Practice;
-
+            currentMode = Enum.TryParse(savedMode, out GameMode parsed) ? parsed : GameMode.Practice;
+        }
+        
+        private void Start()
+        {
             if (settleDetector != null) settleDetector.OnPhysicsSettled += OnPhysicsSettled;
             if (placementController != null) placementController.OnPieceDropped += OnHumanPieceDropped;
 
@@ -93,12 +94,16 @@ namespace Game.Domain.Turns
             {
                 ActivePlayerClientId.OnValueChanged += OnMultiplayerTurnPlayerChanged;
 
+                if (NetworkManager.Singleton != null)
+                {
+                    // Bağlantı kopmalarını ve ayrılmaları dinle
+                    NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
+                }
+
                 if (IsServer)
                 {
-                    // Sunucuya yeni bir oyuncu bağlandığında çalışacak olayı dinle
                     NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
 
-                    // Eğer Client zaten bağlanmışsa (örn. Lobi/Sahne geçişinde) maçı başlat
                     if (NetworkManager.Singleton.ConnectedClientsIds.Count >= 2)
                     {
                         SelectRandomStartingPlayerAndStart();
@@ -106,7 +111,6 @@ namespace Game.Domain.Turns
                 }
                 else
                 {
-                    // Client bağlandığı an Sunucudan mevcut durumu ve kartları ister
                     RequestCurrentTurnStateRpc();
                 }
             }
@@ -118,9 +122,14 @@ namespace Game.Domain.Turns
             {
                 ActivePlayerClientId.OnValueChanged -= OnMultiplayerTurnPlayerChanged;
 
-                if (IsServer && NetworkManager.Singleton != null)
+                if (NetworkManager.Singleton != null)
                 {
-                    NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+                    NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
+
+                    if (IsServer)
+                    {
+                        NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+                    }
                 }
             }
         }
@@ -347,12 +356,18 @@ namespace Game.Domain.Turns
         {
             if (currentState != TurnState.PlacingPiece) return;
 
-            lastPlacer = currentPlayer;
-            if (NetworkManager.Singleton != null)
-            {
-                lastPlacerClientId = NetworkManager.Singleton.LocalClientId;
-            }
+            // lastPlacer = currentPlayer;
+            // if (NetworkManager.Singleton != null)
+            // {
+            //     lastPlacerClientId = NetworkManager.Singleton.LocalClientId;
+            // }
 
+            lastPlacer = currentPlayer;
+            if (currentMode == GameMode.Multiplayer)
+            {
+                lastPlacerClientId = ActivePlayerClientId.Value;   // sırası gelen oyuncu = parçayı bırakan
+            }
+            
             currentState = TurnState.Simulating;
             Debug.Log($"Durum: Fizik Simülasyonu (Kule sallanıyor)... Bırakan: {lastPlacer}");
 
@@ -477,6 +492,91 @@ namespace Game.Domain.Turns
             }
 
             StartTurn();
+        }
+
+        private readonly HashSet<ulong> rematchVotes = new HashSet<ulong>();
+
+        [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
+        public void RequestRematchServerRpc(RpcParams rpcParams = default)
+        {
+            if (!IsServer) return;
+            if (currentState != TurnState.GameOver) return;
+
+            // Rakip oyundan ayrıldıysa rematch olmaz
+            if (NetworkManager.Singleton.ConnectedClientsIds.Count < 2) return;
+
+            ulong sender = rpcParams.Receive.SenderClientId;
+            if (!rematchVotes.Add(sender)) return;          // aynı kişi iki kez oy veremesin
+
+            Debug.Log($"[TurnCoordinator] ClientId {sender} Rematch istedi. Oy: {rematchVotes.Count}");
+
+            if (rematchVotes.Count >= NetworkManager.Singleton.ConnectedClientsIds.Count)
+            {
+                rematchVotes.Clear();
+                DespawnMatchObjects();
+                // Sahneyi HOST yeniden yükler; iki tarafta da LevelManager.Start() çalışır,
+                // platform, çöküş durumu, kamera ve parçalar sıfırdan gelir.
+                NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+            }
+            else
+            {
+                NotifyRematchRequestedClientRpc(sender);    // "Rakip tekrar oynamak istiyor"
+            }
+        }
+
+        [ClientRpc]
+        private void NotifyRematchRequestedClientRpc(ulong requesterClientId)
+        {
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId != requesterClientId)
+            {
+                if (uiPresenter != null && uiPresenter.multiplayerPanel != null)
+                {
+                    uiPresenter.multiplayerPanel.UpdateRematchStatus("Rakip tekrar oynamak istiyor!");
+                }
+            }
+        }
+
+        private void OnClientDisconnected(ulong disconnectedClientId)
+        {
+            Debug.LogWarning($"[TurnCoordinator] ClientId {disconnectedClientId} oyundan ayrıldı veya bağlantısı koptu!");
+
+            // Maç zaten bittiyse (kule çöktüyse vb.) tekrar tetikleme
+            if (currentState == TurnState.GameOver) return;
+
+            currentState = TurnState.GameOver;
+
+            // Oyunda kalan taraf bu cihaz olduğu için hükmen KAZANDI sayılır
+            if (uiPresenter != null)
+            {
+                GameResultData resultData = new GameResultData
+                {
+                    Mode = GameMode.Multiplayer,
+                    ScoreOrTurns = currentTurnNumber - 1,
+                    IsTowerCollapsed = false,
+                    IsWinner = true,
+                    WinnerName = "Rival leaved!"
+                };
+
+                uiPresenter.DisplayGameOver(resultData);
+
+                // Ekran açıldıktan sonra bilgi mesajını güncelle
+                if (uiPresenter.multiplayerPanel != null)
+                {
+                    uiPresenter.multiplayerPanel.UpdateRematchStatus("Rival disconnected! You win by default.");
+                }
+            }
+        }
+
+        private void DespawnMatchObjects()
+        {
+            var all = new List<NetworkObject>(NetworkManager.Singleton.SpawnManager.SpawnedObjectsList);
+            foreach (var no in all)
+            {
+                if (no == null || !no.IsSpawned) continue;
+                if (no.InScenePlaced) continue;                                               // sahneye elle koyduklarına dokunma
+                if (no.GetComponent<Game.Infrastructure.Net.LobbyNetworkState>() != null) continue; // lobi verisi kalsın
+                no.Despawn(true);
+            }
         }
     }
 }

@@ -7,6 +7,7 @@ using Game.Domain.Turns;
 using Game.Presentation.Input;
 using UnityEngine.SceneManagement;
 using Game.Presentation.UI.Panels;
+using Unity.Netcode;
 
 namespace Game.Presentation.UI
 {
@@ -32,6 +33,8 @@ namespace Game.Presentation.UI
         public GameObject pauseContainer;
         public GameObject settingsPanel;
         public GameObject pauseMainCard;
+        public Button pauseRestartButton;
+        public Button pauseSurrenderButton;
 
         private bool isPaused = false;
         private List<PieceDefinition> currentOptions;
@@ -150,8 +153,22 @@ namespace Game.Presentation.UI
 
         public void UpdateRoundText(int currentTurn)
         {
-            if (roundInfoText != null) roundInfoText.text = $"Turn {currentTurn}";
-            if (roundJuice != null) roundJuice.PlayJuiceEffect();
+            // 1. Oyun bittiğinde kapanmış olabilecek roundInfo objesini tekrar aktif yap
+            if (roundInfo != null)
+            {
+                roundInfo.SetActive(true);
+            }
+
+            if (roundInfoText != null)
+            {
+                roundInfoText.text = $"Turn {currentTurn}";
+            }
+
+            // 2. Yalnızca obje sahnede aktifse Juice efektini başlat (Coroutine hatasını önler)
+            if (roundJuice != null && roundJuice.gameObject.activeInHierarchy)
+            {
+                roundJuice.PlayJuiceEffect();
+            }
         }
 
         /// <summary>
@@ -190,6 +207,29 @@ namespace Game.Presentation.UI
             }
         }
 
+        /// <summary>
+        /// Pause menüsündeki "Pes Et / Çık" butonuna bağlanacak metot.
+        /// </summary>
+        public void SurrenderMultiplayerMatch()
+        {
+            Time.timeScale = 1f;
+
+            if (isPaused) 
+            {
+                isPaused = false;
+                if (pauseContainer != null) pauseContainer.SetActive(false);
+            }
+
+            // Ağ oturumunu temizce kapat
+            if (NetworkManager.Singleton != null)
+            {
+                NetworkManager.Singleton.Shutdown();
+            }
+
+            // Ana menüye güvenli dönüş yap
+            SceneManager.LoadScene("MainMenu");
+        }
+
         // --- PAUSE & NAVİGASYON METOTLARI ---
         public void PauseGame()
         {
@@ -197,9 +237,29 @@ namespace Game.Presentation.UI
             if (pauseContainer != null) pauseContainer.SetActive(true);
             if (pauseMainCard != null) pauseMainCard.SetActive(true);
             if (settingsPanel != null) settingsPanel.SetActive(false);
-            Time.timeScale = 0f;
+
+            TurnCoordinator coordinator = UnityEngine.Object.FindAnyObjectByType<TurnCoordinator>();
+            bool isMultiplayer = (coordinator != null && coordinator.currentMode == GameMode.Multiplayer);
+
+            if (isMultiplayer)
+            {
+                // 1. Multiplayer'da zaman akmaya devam eder
+                Time.timeScale = 1f;
+
+                // 2. Solo Restart butonunu gizle, Pes Et butonunu göster
+                if (pauseRestartButton != null) pauseRestartButton.gameObject.SetActive(false);
+                if (pauseSurrenderButton != null) pauseSurrenderButton.gameObject.SetActive(true);
+            }
+            else
+            {
+                // Solo modlarda zamanı dondur, Restart'ı göster, Pes Et'i gizle
+                Time.timeScale = 0f;
+                if (pauseRestartButton != null) pauseRestartButton.gameObject.SetActive(true);
+                if (pauseSurrenderButton != null) pauseSurrenderButton.gameObject.SetActive(false);
+            }
         }
 
+        // Oyuna Devam Et (Resume)
         public void ResumeGame()
         {
             isPaused = false;
@@ -228,6 +288,26 @@ namespace Game.Presentation.UI
         public void ReturnToMap()
         {
             Time.timeScale = 1f;
+            SceneManager.LoadScene("MainMenu");
+        }
+
+        // Pause menüsündeki "EXIT" Butonuna Bağlanacak Metot (Pes Et / Çık)
+        public void ExitToMainMenu()
+        {
+            Time.timeScale = 1f;
+
+            if (isPaused)
+            {
+                isPaused = false;
+                if (pauseContainer != null) pauseContainer.SetActive(false);
+            }
+
+            // Eğer Multiplayer modundaysak ağ oturumunu kapat (Rakip hükmen kazanır)
+            if (NetworkManager.Singleton != null)
+            {
+                NetworkManager.Singleton.Shutdown();
+            }
+
             SceneManager.LoadScene("MainMenu");
         }
     }
