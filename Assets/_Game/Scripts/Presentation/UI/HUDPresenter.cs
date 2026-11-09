@@ -53,6 +53,15 @@ namespace Game.Presentation.UI
         
         public AudioClip gameOverSound;
 
+        [Header("Settings")]
+        public Button settingsBackButton;      
+
+        private void Awake()
+        {
+            if (settingsBackButton != null)
+                settingsBackButton.onClick.AddListener(CloseSettings);
+        } 
+
         private void Update()
         {
             if (UnityEngine.Input.GetKeyDown(KeyCode.Escape))
@@ -275,6 +284,7 @@ namespace Game.Presentation.UI
 
         public void CloseSettings()
         {
+            Debug.Log($"[HUD] CloseSettings çağrıldı. settingsPanel={settingsPanel}, pauseMainCard={pauseMainCard}");
             if (settingsPanel != null) settingsPanel.SetActive(false);
             if (pauseMainCard != null) pauseMainCard.SetActive(true);
         }
