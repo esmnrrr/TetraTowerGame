@@ -356,12 +356,18 @@ namespace Game.Domain.Turns
         {
             if (currentState != TurnState.PlacingPiece) return;
 
-            lastPlacer = currentPlayer;
-            if (NetworkManager.Singleton != null)
-            {
-                lastPlacerClientId = NetworkManager.Singleton.LocalClientId;
-            }
+            // lastPlacer = currentPlayer;
+            // if (NetworkManager.Singleton != null)
+            // {
+            //     lastPlacerClientId = NetworkManager.Singleton.LocalClientId;
+            // }
 
+            lastPlacer = currentPlayer;
+            if (currentMode == GameMode.Multiplayer)
+            {
+                lastPlacerClientId = ActivePlayerClientId.Value;   // sırası gelen oyuncu = parçayı bırakan
+            }
+            
             currentState = TurnState.Simulating;
             Debug.Log($"Durum: Fizik Simülasyonu (Kule sallanıyor)... Bırakan: {lastPlacer}");
 
@@ -507,10 +513,10 @@ namespace Game.Domain.Turns
             if (rematchVotes.Count >= NetworkManager.Singleton.ConnectedClientsIds.Count)
             {
                 rematchVotes.Clear();
+                DespawnMatchObjects();
                 // Sahneyi HOST yeniden yükler; iki tarafta da LevelManager.Start() çalışır,
                 // platform, çöküş durumu, kamera ve parçalar sıfırdan gelir.
-                NetworkManager.Singleton.SceneManager.LoadScene(
-                    SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+                NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
             }
             else
             {
@@ -527,35 +533,6 @@ namespace Game.Domain.Turns
                 {
                     uiPresenter.multiplayerPanel.UpdateRematchStatus("Rakip tekrar oynamak istiyor!");
                 }
-            }
-        }
-
-        [ClientRpc]
-        private void RestartMultiplayerMatchClientRpc()
-        {
-            // Bitiş panelini kapat, tur sayısını 1 yap ve yeni maçı başlat
-            if (uiPresenter != null && uiPresenter.multiplayerPanel != null)
-            {
-                uiPresenter.multiplayerPanel.HidePanel();
-            }
-
-            currentTurnNumber = 1;
-            currentState = TurnState.Setup;
-
-            // Sahnedeki eski blokları temizlemek için (Host tarafında)
-            if (IsServer)
-            {
-                var spawnedPieces = FindObjectsByType<NetworkObject>(FindObjectsSortMode.None);
-                foreach (var netObj in spawnedPieces)
-                {
-                    if (netObj.gameObject.name.Contains("Clone") || netObj.gameObject.name.Contains("Block"))
-                    {
-                        netObj.Despawn(true);
-                    }
-                }
-
-                // Rastgele yeni ilk oyuncu seç ve başlat
-                SelectRandomStartingPlayerAndStart();
             }
         }
 
@@ -587,6 +564,18 @@ namespace Game.Domain.Turns
                 {
                     uiPresenter.multiplayerPanel.UpdateRematchStatus("Rival disconnected! You win by default.");
                 }
+            }
+        }
+
+        private void DespawnMatchObjects()
+        {
+            var all = new List<NetworkObject>(NetworkManager.Singleton.SpawnManager.SpawnedObjectsList);
+            foreach (var no in all)
+            {
+                if (no == null || !no.IsSpawned) continue;
+                if (no.InScenePlaced) continue;                                               // sahneye elle koyduklarına dokunma
+                if (no.GetComponent<Game.Infrastructure.Net.LobbyNetworkState>() != null) continue; // lobi verisi kalsın
+                no.Despawn(true);
             }
         }
     }

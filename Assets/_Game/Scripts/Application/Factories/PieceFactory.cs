@@ -26,7 +26,7 @@ namespace Game.Application.Factories
                 NetworkObject netObj = realPiece.GetComponent<NetworkObject>();
                 if (netObj != null)
                 {
-                    netObj.Spawn();
+                    netObj.Spawn(true); // true: sahneye spawn edildiğinde tüm client'lara otomatik olarak gönderilsin
 
                     // KRİTİK FİZİK ÇÖZÜMÜ:
                     // Eğer bu bilgisayar Client ise yerel fiziği kapatıyoruz!
