@@ -83,7 +83,7 @@ namespace Game.Presentation.UI.Panels
             hasVotedRematch = true;
 
             if (rematchButton != null) rematchButton.interactable = false;
-            if (rematchStatusText != null) rematchStatusText.text = "Yeniden oynama isteği gönderildi...";
+            if (rematchStatusText != null) rematchStatusText.text = "SENDING...";
 
             // TurnCoordinator üzerinden ServerRpc tetikle
             var coordinator = FindAnyObjectByType<TurnCoordinator>();

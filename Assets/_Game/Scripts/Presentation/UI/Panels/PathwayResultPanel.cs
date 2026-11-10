@@ -33,12 +33,12 @@ namespace Game.Presentation.UI.Panels
             // 1. Başlık ve Skor Metni
             if (titleText != null)
             {
-                titleText.text = data.IsTowerCollapsed ? "KULE ÇÖKTÜ!" : $"BÖLÜM {data.LevelIndex} TAMAMLANDI!";
+                titleText.text = data.IsTowerCollapsed ? "TOWER COLLAPSED!" : $"LEVEL {data.LevelIndex} DONE!";
             }
 
             if (scoreText != null)
             {
-                scoreText.text = $"SKOR: {data.ScoreOrTurns}";
+                scoreText.text = $"SCORE: {data.ScoreOrTurns}";
             }
 
             // 2. Yıldız Mantığı

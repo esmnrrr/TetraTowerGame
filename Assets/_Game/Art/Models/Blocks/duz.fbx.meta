@@ -3,7 +3,17 @@ guid: 7509c964ee61e004a889cad1215d9f25
 ModelImporter:
   serializedVersion: 24200
   internalIDToNameTable: []
-  externalObjects: {}
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: blocks
+    second: {fileID: 2100000, guid: 6f78d50a2481a62459a559a7ea5715a1, type: 2}
+  - first:
+      type: UnityEngine:Texture2D
+      assembly: UnityEngine.CoreModule
+      name: "Renkli D\xF6rt B\xF6lmeli Ah\u015Fap Doku Atlas\u0131"
+    second: {fileID: 2800000, guid: 881786e620150194087653bd4493d35f, type: 3}
   materials:
     materialImportMode: 2
     materialName: 0
