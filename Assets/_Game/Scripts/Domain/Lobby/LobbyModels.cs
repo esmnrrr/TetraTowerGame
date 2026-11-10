@@ -51,12 +51,12 @@ namespace Game.Domain.Lobby
         bool IsInLobby { get; }
         ulong LocalClientId { get; }
         string LobbyCode { get; }
-        string Address { get; }
+        void Join(string code, PlayerProfile profile);
         int MapIndex { get; }
         IReadOnlyList<LobbyPlayerInfo> Roster { get; }
 
         void Host(PlayerProfile profile, int mapIndex);
-        void Join(string address, PlayerProfile profile);
+        //void Join(string address, PlayerProfile profile);
         void SetReady(bool ready);
         void StartGame();
         void Leave();

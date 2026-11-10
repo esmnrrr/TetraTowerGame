@@ -63,7 +63,9 @@ namespace Game.Application.UseCases
                 // 1. Denge Tahtasını (Platform) Sahneye Yükle
                 if (currentLevelDefinition.boardPrefab != null)
                 {
-                    Instantiate(currentLevelDefinition.boardPrefab, Vector3.zero, Quaternion.identity);
+                    //Instantiate(currentLevelDefinition.boardPrefab, Vector3.zero, Quaternion.identity);
+                    var boardPrefab = currentLevelDefinition.boardPrefab;
+                    Instantiate(boardPrefab, boardPrefab.transform.position, boardPrefab.transform.rotation);
                 }
                 else
                 {

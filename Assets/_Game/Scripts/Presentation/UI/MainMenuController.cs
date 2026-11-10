@@ -112,7 +112,7 @@ namespace Game.Presentation.UI
 
         public void QuitGame()
         {
-            //Application.Quit();
+            UnityEngine.Application.Quit();
         }
     }
 }

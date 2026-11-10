@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Netcode;
 
 namespace Game.Presentation.Camera
 {
@@ -34,7 +35,12 @@ namespace Game.Presentation.Camera
                 // BUG FIX: Eğer bu obje farenin ucunda gezen hayalet (Ghost) parçaysa VEYA 
                 // henüz bırakılmamış/isKinematic olan bir parçaysa bunu kamera takibine ALMA!
                 Rigidbody rb = piece.GetComponentInParent<Rigidbody>();
-                if (rb != null && rb.isKinematic)
+
+                // Ağda doğmuş gerçek parça mı? (Client'ta bunlar kinematik görünür ama gerçektir)
+                NetworkObject netObj = piece.GetComponentInParent<NetworkObject>();
+                bool isNetworkedPiece = netObj != null && netObj.IsSpawned;
+
+                if (rb != null && rb.isKinematic && !isNetworkedPiece)
                 {
                     continue; // Hayalet veya taşınma aşamasındaki objeyi atla!
                 }
