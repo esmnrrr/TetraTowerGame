@@ -118,6 +118,10 @@ namespace Game.Infrastructure.Net
 
                 var options = new SessionOptions { MaxPlayers = LobbyRules.MaxPlayers }.WithRelayNetwork();
                 session = await MultiplayerService.Instance.CreateSessionAsync(options);   // NGO host'u da başlatır
+                
+                session.Network.StartFailed += err => Debug.LogError($"[Lobby] Ağ başlatılamadı: {err}");
+                session.Network.StateChanged += st => Debug.Log($"[Lobby] Ağ durumu: {st}");
+                
                 pendingCode = session.Code;
 
                 if (!await WaitUntilAsync(() => networkManager.IsHost, networkStartTimeout))

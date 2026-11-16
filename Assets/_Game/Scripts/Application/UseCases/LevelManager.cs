@@ -107,19 +107,25 @@ namespace Game.Application.UseCases
                 return;
             }
 
-            // 1. Host üzerinde platformu üret
-            GameObject boardInstance = Instantiate(defaultMultiplayerBoardPrefab, Vector3.zero, Quaternion.identity);
+            var prefab = defaultMultiplayerBoardPrefab;
+            GameObject boardInstance = Instantiate(prefab, prefab.transform.position, prefab.transform.rotation);
 
-            // 2. Ağa doğur (Client ekranında otomatik belirecek)
             NetworkObject netObj = boardInstance.GetComponent<NetworkObject>();
-            if (netObj != null)
-            {
-                netObj.Spawn();
-            }
-            else
-            {
-                Debug.LogError("[LevelManager] Platform prefab'ında NetworkObject bileşeni YOK!");
-            }
+            if (netObj != null) netObj.Spawn(true);     // true: sahne yenilenince (rematch) bu da silinsin
+
+            // // 1. Host üzerinde platformu üret
+            // GameObject boardInstance = Instantiate(defaultMultiplayerBoardPrefab, Vector3.zero, Quaternion.identity);
+
+            // // 2. Ağa doğur (Client ekranında otomatik belirecek)
+            // NetworkObject netObj = boardInstance.GetComponent<NetworkObject>();
+            // if (netObj != null)
+            // {
+            //     netObj.Spawn();
+            // }
+            // else
+            // {
+            //     Debug.LogError("[LevelManager] Platform prefab'ında NetworkObject bileşeni YOK!");
+            // }
         }
 
         public void RegisterPiecePlaced()
