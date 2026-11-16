@@ -207,6 +207,12 @@ namespace Game.Domain.Turns
 
             if (uiPresenter != null)
             {
+                if (currentMode == GameMode.VsAI) uiPresenter.SetTurnOwner(!isAITurn);
+                else uiPresenter.HideTurnIndicator();       // Practice'te gösterge yok
+            }
+
+            if (uiPresenter != null)
+            {
                 uiPresenter.UpdateRoundText(currentTurnNumber);
                 uiPresenter.ShowPieceSelection();
                 uiPresenter.SetHumanInputInteractable(!isAITurn);
@@ -239,8 +245,15 @@ namespace Game.Domain.Turns
 
                 // Tıklanabilirlik Durumu: Sıra bu bilgisayardaki oyuncuda mı?
                 bool isMyTurn = (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId == activePlayerId);
+                uiPresenter.SetTurnOwner(isMyTurn);
                 uiPresenter.SetHumanInputInteractable(isMyTurn);
             }
+        }
+
+        [ClientRpc]
+        private void ShowSimulationWaitClientRpc()
+        {
+            if (uiPresenter != null) uiPresenter.SetTurnOwner(false);
         }
 
         [Rpc(SendTo.Server, InvokePermission = RpcInvokePermission.Everyone)]
@@ -332,6 +345,7 @@ namespace Game.Domain.Turns
             if (uiPresenter == null) return;
 
             bool isMyTurn = (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId == activePlayerId);
+            uiPresenter.SetTurnOwner(isMyTurn);
             uiPresenter.UpdateRoundText(currentTurnNumber);
             uiPresenter.SetHumanInputInteractable(isMyTurn);
         }
@@ -356,12 +370,6 @@ namespace Game.Domain.Turns
         {
             if (currentState != TurnState.PlacingPiece) return;
 
-            // lastPlacer = currentPlayer;
-            // if (NetworkManager.Singleton != null)
-            // {
-            //     lastPlacerClientId = NetworkManager.Singleton.LocalClientId;
-            // }
-
             lastPlacer = currentPlayer;
             if (currentMode == GameMode.Multiplayer)
             {
@@ -369,6 +377,8 @@ namespace Game.Domain.Turns
             }
             
             currentState = TurnState.Simulating;
+            if (currentMode == GameMode.VsAI && uiPresenter != null) uiPresenter.SetTurnOwner(false);
+            if (currentMode == GameMode.Multiplayer && IsServer) ShowSimulationWaitClientRpc();
             Debug.Log($"Durum: Fizik Simülasyonu (Kule sallanıyor)... Bırakan: {lastPlacer}");
 
             if (settleDetector != null) settleDetector.StartDetecting();

@@ -56,6 +56,9 @@ namespace Game.Presentation.UI
         [Header("Settings")]
         public Button settingsBackButton;      
 
+        [Header("Turn Indicator")]
+        public TurnIndicatorView turnIndicator;
+
         private void Awake()
         {
             if (settingsBackButton != null)
@@ -180,6 +183,16 @@ namespace Game.Presentation.UI
             }
         }
 
+        public void SetTurnOwner(bool isMyTurn)
+        {
+            if (turnIndicator != null) turnIndicator.Show(isMyTurn);
+        }
+
+        public void HideTurnIndicator()
+        {
+            if (turnIndicator != null) turnIndicator.Hide();
+        }
+
         /// <summary>
         /// Oyun bittiğinde TurnCoordinator burayı çağırır. Mod tipine göre doğru strateji panelini açar.
         /// </summary>
@@ -189,6 +202,7 @@ namespace Game.Presentation.UI
             if (selectionPanel != null) selectionPanel.SetActive(false);
             if (controlsHint != null) controlsHint.SetActive(false);
             if (roundInfo != null) roundInfo.SetActive(false);
+            HideTurnIndicator();
 
             // 2. Game Over Sesini Çal
             AudioSource audio = GetComponent<AudioSource>();
